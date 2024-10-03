@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "220918831920",
+    "project_id": "catchy-ca468",
+    "storage_bucket": "catchy-ca468.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:220918831920:android:f4522fa05681ff1fa9c6f5",
+        "android_client_info": {
+          "package_name": "com.mobile.catchy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8oHt7a9akJe40A45HNXfK03OeVTpLSVw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
