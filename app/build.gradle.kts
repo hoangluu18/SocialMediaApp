@@ -60,5 +60,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    // glide image loading and caching library
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    // image view
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
 }
 

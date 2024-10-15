@@ -13,10 +13,10 @@ import com.mobile.catchy.fragments.Profile;
 import com.mobile.catchy.fragments.Search;
 
 
-public class PagerAdapter extends FragmentStatePagerAdapter {
+public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     int noOfTabs;
 
-    public PagerAdapter(@NonNull FragmentManager fm, int noOfTabs) {
+    public ViewPagerAdapter(@NonNull FragmentManager fm, int noOfTabs) {
         super(fm);
         this.noOfTabs = noOfTabs;
     }
