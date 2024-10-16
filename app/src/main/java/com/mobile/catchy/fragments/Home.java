@@ -2,6 +2,8 @@ package com.mobile.catchy.fragments;
 
 import android.os.Bundle;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -9,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -49,7 +52,7 @@ public class Home extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         init(view);
 
-        reference = FirebaseFirestore.getInstance().collection("Posts").document(user.getUid());
+        //reference = FirebaseFirestore.getInstance().collection("Posts").document(user.getUid());
         list = new ArrayList<>();
         adapter = new HomeAdapter(list, getContext());
         recyclerView.setAdapter(adapter);
@@ -58,10 +61,18 @@ public class Home extends Fragment {
     }
 
     private void loadDataFromFirestore() {
+        list.add(new HomeModel("Luu Hoang", "01/11/2024", "", "", "123456", 12));
+        list.add(new HomeModel("Minh Hoang", "02/11/2024", "", "", "321654", 20));
+        list.add(new HomeModel("Le Minh Duyet", "01/11/2024", "", "", "451265", 11));
+        list.add(new HomeModel("Dang Nguyen Ngoc Toan", "01/11/2024", "", "", "888811", 5));
 
+        adapter.notifyDataSetChanged();
     }
 
     private void init(View view) {
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+        if (getActivity() != null)
+            ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

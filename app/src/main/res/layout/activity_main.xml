@@ -7,51 +7,50 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <androidx.appcompat.widget.Toolbar
-        android:layout_alignParentTop="true"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:id="@+id/toolbar"
-        android:background="@android:color/white"
-        android:elevation="2dp"
-        app:contentInsetStart="0dp"
-        app:contentInsetEnd="0dp">
+<!--    <androidx.appcompat.widget.Toolbar-->
+<!--        android:layout_alignParentTop="true"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="?attr/actionBarSize"-->
+<!--        android:id="@+id/toolbar"-->
+<!--        android:background="@android:color/white"-->
+<!--        android:elevation="2dp"-->
+<!--        app:contentInsetStart="0dp"-->
+<!--        app:contentInsetEnd="0dp">-->
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:text="@string/app_name"
-                android:layout_centerVertical="true"
-                android:textSize="18sp"
-                android:textColor="@android:color/black"/>
+<!--        <RelativeLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent">-->
 
-            <ImageButton
-                android:contentDescription="@null"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="@drawable/ic_send"
-                android:layout_margin="12dp"
-                android:id="@+id/sendBtn"
-                android:layout_alignParentRight="true">
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_centerHorizontal="true"-->
+<!--                android:text="@string/app_name"-->
+<!--                android:layout_centerVertical="true"-->
+<!--                android:textSize="18sp"-->
+<!--                android:textColor="@android:color/black"/>-->
 
-            </ImageButton>
+<!--            <ImageButton-->
+<!--                android:contentDescription="@null"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_alignParentEnd="true"-->
+<!--                android:layout_centerVertical="true"-->
+<!--                android:background="@drawable/ic_send"-->
+<!--                android:layout_margin="12dp"-->
+<!--                android:id="@+id/sendBtn"-->
+<!--                android:layout_alignParentRight="true">-->
+
+<!--            </ImageButton>-->
 
 
-        </RelativeLayout>
+<!--        </RelativeLayout>-->
 
-    </androidx.appcompat.widget.Toolbar>
+<!--    </androidx.appcompat.widget.Toolbar>-->
     
     <androidx.viewpager.widget.ViewPager
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar"
         android:layout_above="@id/tabLayout"
         android:id="@+id/viewPager"/>
 
