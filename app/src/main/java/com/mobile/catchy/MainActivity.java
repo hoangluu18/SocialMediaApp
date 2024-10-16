@@ -40,20 +40,75 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setAdapter(pagerAdapter);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 
+        tabLayout.getTabAt(0).setIcon(R.drawable.ic_home_fill);
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
+
+                switch (tab.getPosition()) {
+                    case 0:
+                        tab.setIcon(R.drawable.ic_home_fill);
+                        break;
+                    case 1:
+                        tab.setIcon(R.drawable.ic_search);
+                        break;
+                    case 2:
+                        tab.setIcon(R.drawable.ic_add);
+                        break;
+                    case 3:
+                        tab.setIcon(R.drawable.ic_heart_fill);
+                        break;
+                    case 4:
+                        tab.setIcon(android.R.drawable.ic_menu_help);
+                        break;
+                }
             }
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
 
+
+                switch (tab.getPosition()) {
+                    case 0:
+                        tab.setIcon(R.drawable.ic_home);
+                        break;
+                    case 1:
+                        tab.setIcon(R.drawable.ic_search);
+                        break;
+                    case 2:
+                        tab.setIcon(R.drawable.ic_add);
+                        break;
+                    case 3:
+                        tab.setIcon(R.drawable.ic_heart);
+                        break;
+                    case 4:
+                        tab.setIcon(R.drawable.ic_heart_fill);
+                        break;
+                }
             }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
 
+
+                switch (tab.getPosition()) {
+                    case 0:
+                        tab.setIcon(R.drawable.ic_home_fill);
+                        break;
+                    case 1:
+                        tab.setIcon(R.drawable.ic_search);
+                        break;
+                    case 2:
+                        tab.setIcon(R.drawable.ic_add);
+                        break;
+                    case 3:
+                        tab.setIcon(R.drawable.ic_heart_fill);
+                        break;
+                    case 4:
+                        tab.setIcon(android.R.drawable.ic_menu_help);
+                        break;
+                }
             }
         });
     }
@@ -65,5 +120,5 @@ public class MainActivity extends AppCompatActivity {
         viewPager = findViewById(R.id.viewPager);
         tabLayout = findViewById(R.id.tabLayout);
     }
-    //temp
+
 }
