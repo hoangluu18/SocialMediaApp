@@ -59,7 +59,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:button="@drawable/heart_check" />
+            android:background="@drawable/heart_check" />
 
         <ImageButton
             android:id="@+id/commentBtn"

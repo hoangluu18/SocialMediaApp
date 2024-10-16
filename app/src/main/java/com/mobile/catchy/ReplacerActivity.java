@@ -14,13 +14,13 @@ import androidx.fragment.app.FragmentTransaction;
 import com.mobile.catchy.fragments.CreateAccountFragment;
 import com.mobile.catchy.fragments.LoginFragment;
 
-public class FragmentReplacerActivity extends AppCompatActivity {
+public class ReplacerActivity extends AppCompatActivity {
     private FrameLayout frameLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_fragment_replacer);
+        setContentView(R.layout.activity_replacer);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);

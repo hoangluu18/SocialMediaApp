@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,18 +18,16 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Firebase;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.mobile.catchy.FragmentReplacerActivity;
 import com.mobile.catchy.MainActivity;
 import com.mobile.catchy.R;
+import com.mobile.catchy.ReplacerActivity;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 
 public class CreateAccountFragment extends Fragment {
@@ -68,7 +65,7 @@ public class CreateAccountFragment extends Fragment {
         loginTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((FragmentReplacerActivity) getActivity()).setFragment(new LoginFragment());
+                ((ReplacerActivity) getActivity()).setFragment(new LoginFragment());
 
             }
         });

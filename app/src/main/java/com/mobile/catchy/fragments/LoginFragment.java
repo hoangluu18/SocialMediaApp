@@ -17,7 +17,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.identity.BeginSignInRequest;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -31,13 +30,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.mobile.catchy.FragmentReplacerActivity;
 import com.mobile.catchy.MainActivity;
 import com.mobile.catchy.R;
+import com.mobile.catchy.ReplacerActivity;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 
 public class LoginFragment extends Fragment {
@@ -73,6 +71,12 @@ public class LoginFragment extends Fragment {
     }
 
     private void clickListeners() {
+        forgotPasswordTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((ReplacerActivity) getActivity()).setFragment(new ForgotPassword());
+            }
+        });
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -115,7 +119,7 @@ public class LoginFragment extends Fragment {
         signUpTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((FragmentReplacerActivity) getActivity()).setFragment(new CreateAccountFragment());
+                ((ReplacerActivity) getActivity()).setFragment(new CreateAccountFragment());
             }
         });
     }
