@@ -62,6 +62,9 @@ dependencies {
 
     // FirebaseUI for Cloud Firestore
     implementation ("com.firebaseui:firebase-ui-firestore:8.0.2")
+    //crop image
+    implementation("com.vanniktech:android-image-cropper:4.6.0")
+
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
 
