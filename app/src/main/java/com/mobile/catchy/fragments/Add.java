@@ -1,7 +1,8 @@
 package com.mobile.catchy.fragments;
 
-import static com.mobile.catchy.utils.ImageContent.loadSavedImages;
 
+
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -17,15 +18,34 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.mobile.catchy.R;
 import com.mobile.catchy.adapter.GalleryAdapter;
 import com.mobile.catchy.model.GalleryImages;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class Add extends Fragment {
@@ -38,6 +58,8 @@ public class Add extends Fragment {
     private GalleryAdapter adapter;
     private FirebaseUser user;
 
+    Uri imageUri;
+    String imageUrl;
     public Add() {
         // Required empty public constructor
     }
@@ -63,7 +85,73 @@ public class Add extends Fragment {
         adapter = new GalleryAdapter(list);
 
         recyclerView.setAdapter(adapter);
+        clickListeners();
 
+
+    }
+
+    private void clickListeners(){
+        adapter.SendImage(new GalleryAdapter.SendImage() {
+            @Override
+            public void onSend(Uri picUri) {
+                imageUri = picUri;
+                Glide.with(getContext())
+                                .load(picUri)
+                                .into(imageView);
+                imageView.setVisibility(View.VISIBLE);
+                nextBtn.setVisibility(View.VISIBLE);
+            }
+        });
+
+        nextBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseStorage storage = FirebaseStorage.getInstance();
+                final StorageReference storageReference = storage.getReference().child("Post Images/"+System.currentTimeMillis());
+                storageReference.putFile(imageUri)
+                        .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                if (task.isSuccessful()){
+                                    storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            imageUrl = uri.toString();
+                                            uploadData(uri.toString());
+                                        }
+                                    });
+                                }
+                            }
+                        });
+            }
+        });
+    }
+
+    private void uploadData(String imageUrl) {
+        CollectionReference reference = FirebaseFirestore.getInstance().collection("Users").document(user.getUid()).collection("Post Images");
+
+        String id = reference.document().getId();
+
+        String description = descET.getText().toString();
+
+        List<String> list = new ArrayList<>();
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", id);
+        map.put("description", description);
+        map.put("imageUrl", imageUrl);
+        map.put("timestamp", FieldValue.serverTimestamp());
+
+        reference.document(id).set(map).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                System.out.println();
+                Toast.makeText(getContext(), "Uploaded", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+
+        });
 
 
     }
@@ -88,8 +176,33 @@ public class Add extends Fragment {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                loadSavedImages(getContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS));
-                adapter.notifyDataSetChanged();
+                Dexter.withContext(getContext())
+                        .withPermissions(android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        .withListener(new MultiplePermissionsListener() {
+                            @Override
+                            public void onPermissionsChecked(MultiplePermissionsReport report) {
+                                if (report.areAllPermissionsGranted()) {
+                                    File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download");
+
+                                    if(file.exists()){
+                                        File[] files = file.listFiles();
+                                        assert files != null;
+                                        for (File file1 : files){
+                                            if(file1.getAbsolutePath().endsWith(".jpg") || file1.getAbsolutePath().endsWith(".png")){
+                                               list.add(new GalleryImages(Uri.fromFile(file1)));
+                                               adapter.notifyDataSetChanged();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
+
+                            }
+                        }).check();
+
             }
         });
     }

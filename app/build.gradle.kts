@@ -75,5 +75,7 @@ dependencies {
     implementation ("com.github.bumptech.glide:glide:4.16.0")
     // image view
     implementation ("de.hdodenhof:circleimageview:3.1.0")
+    //dexter permission library
+    implementation ("com.karumi:dexter:6.2.3")
 }
 
