@@ -3,19 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/ic_background"
+    android:background="@drawable/ic_test"
     tools:context=".fragments.CreateAccountFragment">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textSize="24sp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="78dp"
         android:text="Login"
         android:textColor="@color/colorGreen"
-        android:layout_marginTop="78dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"/>
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
     <LinearLayout
         android:id="@+id/ll1"

@@ -1,13 +1,17 @@
 package com.mobile.catchy.fragments;
 
+import android.app.Activity;
+import android.media.MediaCas;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,13 +19,20 @@ import android.view.ViewGroup;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.mobile.catchy.R;
 import com.mobile.catchy.adapter.HomeAdapter;
 import com.mobile.catchy.model.HomeModel;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -31,8 +42,7 @@ public class Home extends Fragment {
     HomeAdapter adapter;
     private List<HomeModel> list;
     private FirebaseUser user;
-
-    DocumentReference reference;
+    public static int LIST_SIZE = 0;
     public Home() {
         // Required empty public constructor
     }
@@ -61,12 +71,50 @@ public class Home extends Fragment {
     }
 
     private void loadDataFromFirestore() {
-        list.add(new HomeModel("Luu Hoang", "01/11/2024", "", "", "123456", 12));
-        list.add(new HomeModel("Minh Hoang", "02/11/2024", "", "", "321654", 20));
-        list.add(new HomeModel("Le Minh Duyet", "01/11/2024", "", "", "451265", 11));
-        list.add(new HomeModel("Dang Nguyen Ngoc Toan", "01/11/2024", "", "", "888811", 5));
+        CollectionReference reference = FirebaseFirestore.getInstance().collection("Users")
+                        .document(user.getUid())
+                        .collection("Post Images");
 
-        adapter.notifyDataSetChanged();
+         reference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+             @Override
+             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                 if(error != null) {
+                     Log.e("Error: ", error.getMessage());
+                     return;
+                 }
+
+                 if(value == null) {
+                     Log.e("Error: ", "No data found");
+                     return;
+                 }
+                 list.clear();
+                 for (QueryDocumentSnapshot snapshot : value) {
+                     if( !snapshot.exists() ) {
+                         Log.e("Error: ", "No data found");
+                         return;
+                     }
+                     HomeModel model = snapshot.toObject(HomeModel.class);
+
+                     list.add(new HomeModel(
+                            model.getUserName(),
+                            model.getProfileImage(),
+                            model.getImageUrl(),
+                            model.getUid(),
+                            model.getComments(),
+                            model.getDescription(),
+                            model.getId(),
+                            model.getTimestamp(),
+                            model.getLikeCount()
+                     ));
+
+                 }
+                 adapter.notifyDataSetChanged();
+
+                 LIST_SIZE = list.size();
+             }
+         });
+
+
     }
 
     private void init(View view) {

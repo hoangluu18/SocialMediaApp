@@ -87,4 +87,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.GalleryH
         this.onSendImage = sendImage;
     }
 
+    public void addImages(List<GalleryImages> newImages) {
+        int startPosition = list.size();
+        list.addAll(newImages);
+        notifyItemRangeInserted(startPosition, newImages.size());
+    }
+
 }

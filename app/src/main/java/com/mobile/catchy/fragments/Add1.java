@@ -4,7 +4,6 @@ package com.mobile.catchy.fragments;
 
 import static android.app.Activity.RESULT_OK;
 
-import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Intent;
@@ -18,7 +17,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,7 +27,6 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -66,10 +63,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 
-public class Add extends Fragment {
+public class Add1 extends Fragment {
 
     private EditText descET;
     private ImageView imageView;
@@ -78,25 +74,22 @@ public class Add extends Fragment {
     private List<GalleryImages> list;
     private GalleryAdapter adapter;
     private FirebaseUser user;
-    private Dialog dialog;
+
     Uri imageUri;
     String imageUrl;
-    private boolean permissionsChecked = false;
 
 //    private boolean isLoading = false;
 //    private int currentPage = 0; // Bắt đầu từ trang 0
 //    private int pageSize = 20; // Số lượng ảnh mỗi lần tải
 
-    public Add() {
+    public Add1() {
         // Required empty public constructor
-
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Toast.makeText(getContext(), "Dang o onCreateView\n", Toast.LENGTH_SHORT).show();
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_add, container, false);
     }
@@ -106,7 +99,7 @@ public class Add extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         init(view);
-        descET.setText("");
+
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
         recyclerView.setHasFixedSize(true);
 
@@ -212,22 +205,27 @@ public class Add extends Fragment {
 
         );
 
-        nextBtn.setOnClickListener(view -> {
-            FirebaseStorage storage = FirebaseStorage.getInstance();
-            final StorageReference storageReference = storage.getReference().child("Post Images/"+System.currentTimeMillis());
-            dialog.show();
-            storageReference.putFile(imageUri)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()){
-                            storageReference.getDownloadUrl().addOnSuccessListener(uri -> {
-                                uploadData(uri.toString());
-                            });
-                        }
-                        else {
-                            dialog.dismiss();
-                            Toast.makeText(getContext(), "Failed to upload post", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+        nextBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseStorage storage = FirebaseStorage.getInstance();
+                final StorageReference storageReference = storage.getReference().child("Post Images/"+System.currentTimeMillis());
+                storageReference.putFile(imageUri)
+                        .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                if (task.isSuccessful()){
+                                    storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            imageUrl = uri.toString();
+                                            uploadData(uri.toString());
+                                        }
+                                    });
+                                }
+                            }
+                        });
+            }
         });
     }
 
@@ -254,14 +252,11 @@ public class Add extends Fragment {
 
         reference.document(id).set(map).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                System.out.println();
                 Toast.makeText(getContext(), "Uploaded", Toast.LENGTH_SHORT).show();
-                descET.setText("");
-                dialog.dismiss();
-                //return home
             } else {
                 Toast.makeText(getContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
             }
-            dialog.dismiss();
 
 
         });
@@ -280,33 +275,26 @@ public class Add extends Fragment {
 
         user = FirebaseAuth.getInstance().getCurrentUser();
 
-        dialog = new Dialog(getContext());
-        dialog.setContentView(R.layout.loading_dialog);
-        dialog.getWindow().setBackgroundDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.dialog_bg, null));
-        dialog.setCancelable(false);
     }
 
     @Override
     public void onResume(){
-        Toast.makeText(getContext(), "Tren dau resume\n", Toast.LENGTH_SHORT).show();
         super.onResume();
-        if(!permissionsChecked) {
 
-
-            requireActivity().runOnUiThread(new Runnable() {
-                @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
-                @Override
-                public void run() {
-                    Dexter.withContext(getContext())
-                            .withPermissions(
-                                    // Thay thế quyền cũ bằng quyền mới tùy theo mục đích của bạn
-                                    android.Manifest.permission.READ_MEDIA_IMAGES,
-                                    android.Manifest.permission.READ_MEDIA_VIDEO,
-                                    android.Manifest.permission.READ_MEDIA_AUDIO,
-                                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            .withListener(new MultiplePermissionsListener() {
-                                @Override
-                                public void onPermissionsChecked(MultiplePermissionsReport report) {
+        getActivity().runOnUiThread(new Runnable() {
+            @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+            @Override
+            public void run() {
+                Dexter.withContext(getContext())
+                        .withPermissions(
+                                // Thay thế quyền cũ bằng quyền mới tùy theo mục đích của bạn
+                                android.Manifest.permission.READ_MEDIA_IMAGES,
+                                android.Manifest.permission.READ_MEDIA_VIDEO,
+                                android.Manifest.permission.READ_MEDIA_AUDIO,
+                                android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        .withListener(new MultiplePermissionsListener() {
+                            @Override
+                            public void onPermissionsChecked(MultiplePermissionsReport report) {
 //                                if (report.areAllPermissionsGranted()) {
 //                                    File file = new File(Environment.getExternalStorageDirectory().toString() + "/DCIM/Camera");
 //
@@ -321,49 +309,41 @@ public class Add extends Fragment {
 //                                        }
 //                                    }
 //                                }
-                                    if (list.isEmpty()) {
-                                        loadImagesFromMediaStore();
-                                    }
-                                    Toast.makeText(getContext(), "Ben trong run()\n", Toast.LENGTH_SHORT).show();
-                                    permissionsChecked = true;
-                                }
+                                loadImagesFromMediaStoreAsync();
+                            }
 
-                                @Override
-                                public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
-                                    // Hiển thị lý do cần thiết cho người dùng nếu họ từ chối quyền
-                                    permissionToken.continuePermissionRequest();
-                                }
-                            }).check();
-                }
-            });
-        }
+                            @Override
+                            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
+                                // Hiển thị lý do cần thiết cho người dùng nếu họ từ chối quyền
+                                permissionToken.continuePermissionRequest();
+                            }
+                        }).check();
+            }
+        });
     }
 
 
-        ActivityResultLauncher<CropImageContractOptions> cropLauncher = registerForActivityResult(new CropImageContract(), result -> {
+    ActivityResultLauncher<CropImageContractOptions> cropLauncher = registerForActivityResult(new CropImageContract(), result -> {
 
 
-            if (result.isSuccessful()) {
-                imageUri = result.getUriContent();
+        if (result.isSuccessful()) {
+            imageUri = result.getUriContent();
 
-                Glide.with(Add.this).load(imageUri).into(imageView);
+            Glide.with(Add1.this).load(imageUri).into(imageView);
 
-                imageView.setVisibility(View.VISIBLE);
-                nextBtn.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.VISIBLE);
+            nextBtn.setVisibility(View.VISIBLE);
 
-            }
+        }
 
-        });
+    });
 
     private void loadImagesFromMediaStoreAsync() {
-        new  AsyncTask<Void, Void, List<GalleryImages>>() {
+        new AsyncTask<Void, Void, List<GalleryImages>>() {
             @Override
             protected List<GalleryImages> doInBackground(Void... voids) {
                 List<GalleryImages> imageList = new ArrayList<>();
-                assert getContext() != null;
                 ContentResolver contentResolver = getContext().getContentResolver();
-
-//                ContentResolver contentResolver = requireContext().getContentResolver();
                 Uri collection;
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -379,18 +359,10 @@ public class Add extends Fragment {
                 };
 
                 // Lọc ảnh trong thư mục DCIM/Camera
-//                String selection = "(" + MediaStore.Images.Media.MIME_TYPE + "=? OR " +
-//                        MediaStore.Images.Media.MIME_TYPE + "=?) AND " +
-//                        MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
-//                String[] selectionArgs = new String[]{"image/jpeg", "image/png", "%AndroidNhat2%"};
-
-                String selection = MediaStore.Images.Media.MIME_TYPE + "=? OR " +
-                        MediaStore.Images.Media.MIME_TYPE + "=?";
-                String[] selectionArgs = new String[]{"image/jpeg", "image/png"};
-//                String selection = "(" + MediaStore.Images.Media.MIME_TYPE + "=? OR " +
-//                        MediaStore.Images.Media.MIME_TYPE + "=?) AND " +
-//                        MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
-//                String[] selectionArgs = new String[]{"image/jpeg", "image/png", "%DCIM/Camera%"};
+                String selection = "(" + MediaStore.Images.Media.MIME_TYPE + "=? OR " +
+                        MediaStore.Images.Media.MIME_TYPE + "=?) AND " +
+                        MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
+                String[] selectionArgs = new String[]{"image/jpeg", "image/png", "%AndroidNhat2%"};
 
                 try (Cursor cursor = contentResolver.query(
                         collection,
@@ -421,61 +393,5 @@ public class Add extends Fragment {
                 adapter.notifyDataSetChanged();
             }
         }.execute();
-        Toast.makeText(getContext(), "Loaded\n", Toast.LENGTH_SHORT).show();
-    }
-
-    private void loadImagesFromMediaStore() {
-        Toast.makeText(getContext(), "ben trong loadImage\n", Toast.LENGTH_SHORT).show();
-        // Truy vấn MediaStore để lấy ảnh
-        ContentResolver contentResolver = requireContext().getContentResolver();
-        Uri collection;
-
-        // Sử dụng MediaStore để lấy URI của ảnh tùy vào phiên bản Android
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
-        } else {
-            collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        }
-
-        // Cột mà chúng ta muốn truy xuất
-        String[] projection = new String[] {
-                MediaStore.Images.Media._ID,
-                MediaStore.Images.Media.DISPLAY_NAME
-        };
-
-        // Điều kiện truy vấn (chỉ lấy ảnh JPEG)
-//        String selection = MediaStore.Images.Media.MIME_TYPE + "=?";
-//        String[] selectionArgs = new String[] {"image/jpeg"};
-
-        String selection = "(" + MediaStore.Images.Media.MIME_TYPE + "=? OR " +
-                MediaStore.Images.Media.MIME_TYPE + "=?) AND " +
-                MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
-        String[] selectionArgs = new String[]{"image/jpeg", "image/png", "%AndroidNhat2%"};
-
-//        String selection = MediaStore.Images.Media.MIME_TYPE + "=? OR " +
-//                MediaStore.Images.Media.MIME_TYPE + "=?";
-//        String[] selectionArgs = new String[]{"image/jpeg", "image/png"};
-
-        try (Cursor cursor = contentResolver.query(
-                collection,
-                projection,
-                selection,
-                selectionArgs,
-                null)) {
-            if (cursor != null) {
-                int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
-
-                while (cursor.moveToNext()) {
-                    long id = cursor.getLong(idColumn);
-                    Uri contentUri = ContentUris.withAppendedId(
-                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-
-                    // Thêm ảnh vào danh sách và thông báo adapter
-                    list.add(new GalleryImages(contentUri));
-                    adapter.notifyDataSetChanged();
-                }
-            }
-        }
-        Toast.makeText(getContext(), "Loaded hehe\n", Toast.LENGTH_SHORT).show();
     }
 }

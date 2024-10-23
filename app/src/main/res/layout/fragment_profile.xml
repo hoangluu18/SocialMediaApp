@@ -76,7 +76,7 @@
                 android:background="@drawable/ic_circle"
                 android:elevation="3dp"
                 android:src="@drawable/ic_edit"
-                android:visibility="gone" />
+                android:visibility="visible" />
 
         </RelativeLayout>
 

@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.mobile.catchy.MainActivity;
 import com.mobile.catchy.R;
@@ -109,28 +110,32 @@ public class CreateAccountFragment extends Fragment {
 
     private void createAccount(String name, String email, String password){
         auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
-                            // Sign in success, update UI with the signed-in user's information
-                            FirebaseUser user = auth.getCurrentUser();
-                            user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()){
-                                        Toast.makeText(getContext(), "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
-                                    } else{
-                                        Toast.makeText(getContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                    }
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        // Sign in success, update UI with the signed-in user's information
+                        FirebaseUser user = auth.getCurrentUser();
+
+                        UserProfileChangeRequest.Builder request = new UserProfileChangeRequest.Builder();
+                        request.setDisplayName(name);
+
+                        assert user != null;
+                        user.updateProfile(request.build());
+
+                        user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if(task.isSuccessful()){
+                                    Toast.makeText(getContext(), "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                                } else{
+                                    Toast.makeText(getContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                 }
-                            });
-                            uploadUser(user, name, email);
-                        } else{
-                            progressBar.setVisibility(View.GONE);
-                            String exception = task.getException().getMessage();
-                            Toast.makeText(getContext(), exception, Toast.LENGTH_SHORT).show();
-                        }
+                            }
+                        });
+                        uploadUser(user, name, email);
+                    } else{
+                        progressBar.setVisibility(View.GONE);
+                        String exception = task.getException().getMessage();
+                        Toast.makeText(getContext(), exception, Toast.LENGTH_SHORT).show();
                     }
                 });
     }

@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.mobile.catchy"
-        minSdk = 23
+        minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -63,7 +63,7 @@ dependencies {
     // FirebaseUI for Cloud Firestore
     implementation ("com.firebaseui:firebase-ui-firestore:8.0.2")
     //crop image
-    implementation("com.vanniktech:android-image-cropper:4.6.0")
+    implementation("com.vanniktech:android-image-cropper:4.5.0")
 
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
@@ -77,5 +77,15 @@ dependencies {
     implementation ("de.hdodenhof:circleimageview:3.1.0")
     //dexter permission library
     implementation ("com.karumi:dexter:6.2.3")
+
+
+    implementation ("com.github.MarsadMaqsood:StylishDialogs:1.0.0")
+
+    implementation ("com.github.a914-gowtham:android-video-trimmer:1.7.19")
+
+    // Paging Library
+    implementation ("androidx.paging:paging-runtime:3.1.1")
+
+
 }
 

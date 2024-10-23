@@ -56,8 +56,10 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:hint="Add Something About This Post"
-                android:minLines="12" />
 
+                android:minLines="12" />
+<!--            android:focusable="false"-->
+<!--            android:focusableInTouchMode="true"-->
             <View
                 android:id="@+id/view"
                 android:layout_width="match_parent"
