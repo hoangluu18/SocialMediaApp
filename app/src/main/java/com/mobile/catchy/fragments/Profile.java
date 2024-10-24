@@ -167,12 +167,15 @@ public class Profile extends Fragment {
                     followersCountTv.setText(String.valueOf(followers));
                     followingCountTv.setText(String.valueOf(following));
 
-
-                    Glide.with(getContext().getApplicationContext())
-                            .load(profileURL)
-                            .placeholder(R.drawable.ic_person)
-                            .timeout(6500)
-                            .into(profileImage);
+                    try {
+                        Glide.with(getContext().getApplicationContext())
+                                .load(profileURL)
+                                .placeholder(R.drawable.ic_person)
+                                .timeout(6500)
+                                .into(profileImage);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
 
                 }
@@ -258,6 +261,7 @@ public class Profile extends Fragment {
         adapter.stopListening();
     }
 
+
 //    @Override
 //    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 //        super.onActivityResult(requestCode, resultCode, data);
@@ -313,6 +317,7 @@ public class Profile extends Fragment {
                                             });
 
                                 });
+
 
                     } else {
                         assert task.getException() != null;

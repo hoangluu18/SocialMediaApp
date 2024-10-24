@@ -149,7 +149,7 @@ public class CreateAccountFragment extends Fragment {
         map.put("followers", 0);
         map.put("following", 0);
         map.put("status"," ");
-
+        map.put("search", name.toLowerCase());
 
         FirebaseFirestore.getInstance().collection("Users").document(user.getUid())
                 .set(map)

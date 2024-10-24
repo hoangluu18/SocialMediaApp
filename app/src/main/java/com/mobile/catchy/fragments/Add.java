@@ -96,7 +96,7 @@ public class Add extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Toast.makeText(getContext(), "Dang o onCreateView\n", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), "Dang o onCreateView\n", Toast.LENGTH_SHORT).show();
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_add, container, false);
     }
@@ -288,7 +288,7 @@ public class Add extends Fragment {
 
     @Override
     public void onResume(){
-        Toast.makeText(getContext(), "Tren dau resume\n", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), "Tren dau resume\n", Toast.LENGTH_SHORT).show();
         super.onResume();
         if(!permissionsChecked) {
 
@@ -324,7 +324,7 @@ public class Add extends Fragment {
                                     if (list.isEmpty()) {
                                         loadImagesFromMediaStore();
                                     }
-                                    Toast.makeText(getContext(), "Ben trong run()\n", Toast.LENGTH_SHORT).show();
+                                    //Toast.makeText(getContext(), "Ben trong run()\n", Toast.LENGTH_SHORT).show();
                                     permissionsChecked = true;
                                 }
 
@@ -421,11 +421,11 @@ public class Add extends Fragment {
                 adapter.notifyDataSetChanged();
             }
         }.execute();
-        Toast.makeText(getContext(), "Loaded\n", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), "Loaded\n", Toast.LENGTH_SHORT).show();
     }
 
     private void loadImagesFromMediaStore() {
-        Toast.makeText(getContext(), "ben trong loadImage\n", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), "ben trong loadImage\n", Toast.LENGTH_SHORT).show();
         // Truy vấn MediaStore để lấy ảnh
         ContentResolver contentResolver = requireContext().getContentResolver();
         Uri collection;
@@ -476,6 +476,6 @@ public class Add extends Fragment {
                 }
             }
         }
-        Toast.makeText(getContext(), "Loaded hehe\n", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), "Loaded hehe\n", Toast.LENGTH_SHORT).show();
     }
 }

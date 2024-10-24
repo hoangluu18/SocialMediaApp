@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_search));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_add));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_heart));
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_heart_fill));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.baseline_person_24));
 
         tabLayout.setTabGravity(TabLayout.GRAVITY_CENTER);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                         tab.setIcon(R.drawable.ic_heart_fill);
                         break;
                     case 4:
-                        tab.setIcon(android.R.drawable.ic_menu_help);
+                        tab.setIcon(R.drawable.baseline_person_24);
                         break;
                 }
             }
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                         tab.setIcon(R.drawable.ic_heart);
                         break;
                     case 4:
-                        tab.setIcon(R.drawable.ic_heart_fill);
+                        tab.setIcon(R.drawable.baseline_person_24);
                         break;
                 }
             }
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                         tab.setIcon(R.drawable.ic_heart_fill);
                         break;
                     case 4:
-                        tab.setIcon(android.R.drawable.ic_menu_help);
+                        tab.setIcon(R.drawable.baseline_person_24);
                         break;
                 }
             }
