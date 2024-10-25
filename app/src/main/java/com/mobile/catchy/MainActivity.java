@@ -8,8 +8,9 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.mobile.catchy.adapter.ViewPagerAdapter;
+import com.mobile.catchy.fragments.Search;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Search.OnDataPass {
     private TabLayout tabLayout;
     private ViewPager viewPager;
 
@@ -121,4 +122,17 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.tabLayout);
     }
 
+    @Override
+    public void onChange(int position) {
+        viewPager.setCurrentItem(position);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(viewPager.getCurrentItem() == 4){
+            viewPager.setCurrentItem(0);
+        }
+        else
+            super.onBackPressed();
+    }
 }

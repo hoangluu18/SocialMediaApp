@@ -24,6 +24,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     OnUserClicked onUserClicked;
     List<Users> list;
+
     public UserAdapter(List<Users> list) {
         this.list = list;
     }
@@ -42,8 +43,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
         if (list.get(position).getUid().equals(user.getUid())) {
             holder.layout.setVisibility(View.GONE);
             holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
-        }
-        else{
+        } else {
             holder.layout.setVisibility(View.VISIBLE);
         }
         holder.nameTV.setText(list.get(position).getName());
@@ -55,7 +55,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
                 .timeout(6500)
                 .into(holder.profileImage);
 
-
+        holder.clickListener(position, list.get(position).getUid());
 
     }
 
@@ -69,10 +69,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
     }
 
     public interface OnUserClicked {
-        void onClicked(String uid);
+        void onClicked(int position, String uid);
     }
 
-     static class UserHolder extends RecyclerView.ViewHolder {
+    public class UserHolder extends RecyclerView.ViewHolder {
 
         CircleImageView profileImage;
         TextView nameTV, statusTV;
@@ -88,6 +88,17 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
 
         }
 
+        private void clickListener(int position, String uid) {
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onUserClicked.onClicked(position, uid);
+                }
+            });
+        }
+
 
     }
+
+
 }

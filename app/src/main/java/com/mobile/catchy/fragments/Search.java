@@ -1,5 +1,6 @@
 package com.mobile.catchy.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -45,6 +46,19 @@ public class Search extends Fragment {
     private List<Users> list;
     CollectionReference reference;
 
+    OnDataPass onDataPass;
+
+    public interface OnDataPass {
+        void onChange(int position);
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        onDataPass = (OnDataPass) context;
+    }
+
     public Search() {
         // Required empty public constructor
     }
@@ -62,12 +76,25 @@ public class Search extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         init(view);
+
         reference = FirebaseFirestore.getInstance().collection("Users");
+
         loadUserData();
 
         searchUser();
 
+        clickListener();
 
+
+    }
+
+    private void clickListener() {
+        adapter.OnUserClicked(new UserAdapter.OnUserClicked() {
+            @Override
+            public void onClicked(int position, String uid) {
+                onDataPass.onChange(4);
+            }
+        });
     }
 
     private void searchUser() {
