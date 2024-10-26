@@ -29,13 +29,19 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Source;
+import com.google.firebase.firestore.auth.User;
 import com.mobile.catchy.MainActivity;
 import com.mobile.catchy.R;
 import com.mobile.catchy.ReplacerActivity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 
 public class LoginFragment extends Fragment {
@@ -48,6 +54,7 @@ public class LoginFragment extends Fragment {
     private FirebaseAuth auth;
     public static final int RC_SIGN_IN = 1;
     GoogleSignInClient mGoogleSignInClient;
+
     public LoginFragment() {
         // Required empty public constructor
 
@@ -197,32 +204,51 @@ public class LoginFragment extends Fragment {
                 });
     }
 
-        private void updateUI(FirebaseUser user) {
-            GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getActivity());
-        Map<String, Object> map = new HashMap<>();
-        map.put("name", account.getDisplayName());
-        map.put("email", account.getEmail());
-        map.put("profileImage", String.valueOf(account.getPhotoUrl()));
-        map.put("uid", user.getUid());
-        map.put("followers", 0);
-        map.put("following", 0);
-        map.put("status"," ");
+    private void updateUI(FirebaseUser user) {
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getActivity());
+        DocumentReference reference = FirebaseFirestore.getInstance().collection("Users")
+                .document(user.getUid());
 
-        FirebaseFirestore.getInstance().collection("Users").document(user.getUid())
-                .set(map)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if(task.isSuccessful()){
+        reference.get().addOnSuccessListener(documentSnapshot -> {
+            List<Object> followersList;
+            List<Object> followingList;
+
+            // Kiểm tra nếu followers và following đã tồn tại thì lấy giá trị hiện tại
+            if (documentSnapshot.exists()) {
+                followersList = (List<Object>) documentSnapshot.get("followers");
+                followingList = (List<Object>) documentSnapshot.get("following");
+            } else {
+                followersList = new ArrayList<>(); // Nếu không tồn tại, tạo danh sách rỗng
+                followingList = new ArrayList<>();
+            }
+
+            // Tạo map với dữ liệu mới, không thay đổi followers và following nếu đã có
+            Map<String, Object> map = new HashMap<>();
+            map.put("name", account.getDisplayName());
+            map.put("email", account.getEmail());
+            map.put("profileImage", String.valueOf(account.getPhotoUrl()));
+            map.put("uid", user.getUid());
+            map.put("followers", followersList); // Giữ nguyên danh sách hiện tại nếu có
+            map.put("following", followingList);
+            map.put("status", " ");
+            map.put("search", account.getDisplayName().toLowerCase());
+
+            // Cập nhật Firestore
+            reference.set(map)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
                             assert getActivity() != null;
                             progressBar.setVisibility(View.GONE);
                             sendUserToMainActivity();
-                        } else{
+                        } else {
                             progressBar.setVisibility(View.GONE);
                             Toast.makeText(getContext(), "Error: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
-                    }
-                });
+                    });
+        }).addOnFailureListener(e -> {
+            progressBar.setVisibility(View.GONE);
+            Toast.makeText(getContext(), "Failed to retrieve data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
     }
 
 

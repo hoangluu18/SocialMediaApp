@@ -40,9 +40,13 @@ import com.canhub.cropper.CropImageOptions;
 import com.canhub.cropper.CropImageView;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -59,7 +63,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import com.canhub.cropper.CropImage;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class Profile extends Fragment {
 
@@ -74,6 +80,10 @@ public class Profile extends Fragment {
     private ImageButton editProfileBtn;
     boolean isMyProfile = false;
     private LinearLayout buttonLayout;
+    boolean isFollowed;
+    List<Object> followersList,followingList_2;
+    List<Object>followingList;
+    DocumentReference userRef, myRef;
 
     // ActivityResultLauncher để cắt ảnh
     private final ActivityResultLauncher<CropImageContractOptions> cropImageLauncher =
@@ -81,7 +91,7 @@ public class Profile extends Fragment {
                 if (result.isSuccessful()) {
                     Uri uri = result.getUriContent();
                     // Hiển thị ảnh đã cắt lên profileImage
-                    Glide.with(getContext())
+                    Glide.with(requireContext())
                             .load(uri)
                             .into(profileImage);
                     uploadImage(uri);
@@ -111,9 +121,15 @@ public class Profile extends Fragment {
         init(view);
 
 
+
+        myRef = FirebaseFirestore.getInstance().collection("Users")
+                .document(user.getUid());
+
         if(IS_SEARCHED_USER){
             isMyProfile = false;
             userUID = USER_ID;
+
+            loadData();
         }
         else{
             isMyProfile = true;
@@ -125,11 +141,12 @@ public class Profile extends Fragment {
             countLayout.setVisibility(View.VISIBLE);
         }
         else {
-            countLayout.setVisibility(View.GONE);
+            countLayout.setVisibility(View.VISIBLE);
             editProfileBtn.setVisibility(View.GONE);
             buttonLayout.setVisibility(View.VISIBLE);
         }
-
+        userRef = FirebaseFirestore.getInstance().collection("Users")
+                .document(userUID);
 
         loadBasicData();
         recyclerView.setHasFixedSize(true);
@@ -140,6 +157,100 @@ public class Profile extends Fragment {
         recyclerView.setAdapter(adapter);
 
 
+
+        
+        clickListeners();
+    }
+
+    private void loadData() {
+        myRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if(error != null){
+                    Log.e("Tag_b"," " + error.getMessage());
+                    return;
+                }
+
+                if(value == null || !value.exists()){
+                   return;
+                }
+                followingList_2 = (List<Object>) value.get("following");
+            }
+        });
+    }
+
+    private void clickListeners() {
+
+        followBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(isFollowed){
+                    followersList.remove(user.getUid());
+
+                    followingList_2.remove(userUID);
+
+                    final Map<String,Object> map_2 = new HashMap<>();
+                    map_2.put("following", followingList_2);
+
+                    Map<String,Object> map = new HashMap<>();
+                    map.put("followers", followersList);
+
+
+                    userRef.update(map).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            followBtn.setText("Follow");
+                            isFollowed = false;
+                            myRef.update(map_2).addOnCompleteListener(task1 -> {
+                                if (task1.isSuccessful()) {
+                                    Toast.makeText(getContext(), "UnFollowed", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    assert task1.getException() != null;
+                                    Log.e("Tag_3", task1.getException().getMessage());
+                                }
+                            });
+
+                        } else {
+                            assert task.getException() != null;
+                            Log.e("Tag", "" + task.getException().getMessage());
+                        }
+                    });
+
+                }else{
+                    followersList.add(user.getUid());
+
+                    followingList_2.add(userUID);
+
+                    final Map<String,Object> map_2 = new HashMap<>();
+                    map_2.put("following", followingList_2);
+
+                    Map<String,Object> map = new HashMap<>();
+                    map.put("followers", followersList);
+
+                    userRef.update(map).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            followBtn.setText("UnFollow");
+                            isFollowed = true;
+                            myRef.update(map_2).addOnCompleteListener(task12 -> {
+                                if (task12.isSuccessful()) {
+                                    Toast.makeText(getContext(), "Followed", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    assert task12.getException() != null;
+                                    Log.e("tag_3_1", task12.getException().getMessage());
+                                }
+                            });
+
+
+                        } else {
+                            assert task.getException() != null;
+                            Log.e("Tag", "" + task.getException().getMessage());
+                        }
+                    });
+
+
+
+                }
+            }
+        });
         editProfileBtn.setOnClickListener(v -> {
             // Tạo các tùy chọn cho việc cắt ảnh
             CropImageOptions cropImageOptions = new CropImageOptions();
@@ -158,8 +269,7 @@ public class Profile extends Fragment {
 
     private void loadBasicData() {
         Toast.makeText(getContext(), "dau loadbasic", Toast.LENGTH_SHORT).show();
-        DocumentReference userRef = FirebaseFirestore.getInstance().collection("Users")
-                .document(userUID);
+
         userRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -171,15 +281,34 @@ public class Profile extends Fragment {
                 if (value.exists()) {
                     String name = value.getString("name");
                     String status = value.getString("status");
-                    int followers = value.getLong("followers").intValue();
-                    int following = value.getLong("following").intValue();
+
                     String profileURL = value.getString("profileImage");
 
                     nameTv.setText(name);
                     toolbarNameTv.setText(name);
                     statusTv.setText(status);
-                    followersCountTv.setText(String.valueOf(followers));
-                    followingCountTv.setText(String.valueOf(following));
+
+                    followersList = (List<Object>) value.get("followers");
+                    followingList = (List<Object>) value.get("following");
+
+                    followersCountTv.setText("" + followersList.size());
+                    followingCountTv.setText("" + followingList.size());
+
+                    //test
+                    CollectionReference reference = FirebaseFirestore.getInstance().collection("Users")
+                            .document(userUID)
+                            .collection("Post Images");
+
+                    reference.get().addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            LIST_SIZE = task.getResult().size(); // Lấy số lượng ảnh từ kết quả
+                            Toast.makeText(getContext(), "size: " + LIST_SIZE, Toast.LENGTH_SHORT).show();
+                            postCountTv.setText("" + LIST_SIZE);
+                        } else {
+                            Log.e("Firestore Error", "Error getting documents: ", task.getException());
+                        }
+                    });
+
 
                     try {
                         Glide.with(getContext().getApplicationContext())
@@ -190,6 +319,27 @@ public class Profile extends Fragment {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                    if(!isMyProfile){
+                        if(followersList.contains(user.getUid())){
+                            followBtn.setText("Unfollow");
+                            isFollowed = true;
+                        }
+                        else{
+                            isFollowed = false;
+                            followBtn.setText("Follow");
+                        }
+                    }
+//                    if(followersList.contains(userUID)){
+//                        followBtn.setText("Unfollow");
+//                        isFollowed = true;
+//                    }
+//                    else {
+//                        isFollowed = false;
+//                        followBtn.setText("Follow");
+//                    }
+
+
+
 
 
                 }
@@ -198,7 +348,7 @@ public class Profile extends Fragment {
             };
         });
 
-        postCountTv.setText("" + LIST_SIZE);
+//        postCountTv.setText("" + LIST_SIZE);
         Toast.makeText(getContext(), "cuoi loadbasic", Toast.LENGTH_SHORT).show();
     }
 
