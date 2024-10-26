@@ -2,6 +2,8 @@ package com.mobile.catchy.fragments;
 
 import static android.app.Activity.RESULT_OK;
 
+import static com.mobile.catchy.MainActivity.IS_SEARCHED_USER;
+import static com.mobile.catchy.MainActivity.USER_ID;
 import static com.mobile.catchy.fragments.Home.LIST_SIZE;
 
 import android.content.Intent;
@@ -14,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -48,6 +51,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.mobile.catchy.MainActivity;
 import com.mobile.catchy.R;
 import com.mobile.catchy.model.PostImageModel;
 
@@ -64,11 +68,12 @@ public class Profile extends Fragment {
     private Button followBtn, startChatBtn;
     private RecyclerView recyclerView;
     private LinearLayout countLayout;
-    String uid;
+    String userUID;
     FirestoreRecyclerAdapter<PostImageModel, PostImageHolder> adapter;
     private FirebaseUser user;
     private ImageButton editProfileBtn;
     boolean isMyProfile = false;
+    private LinearLayout buttonLayout;
 
     // ActivityResultLauncher để cắt ảnh
     private final ActivityResultLauncher<CropImageContractOptions> cropImageLauncher =
@@ -105,18 +110,26 @@ public class Profile extends Fragment {
 
         init(view);
 
+
+        if(IS_SEARCHED_USER){
+            isMyProfile = false;
+            userUID = USER_ID;
+        }
+        else{
+            isMyProfile = true;
+            userUID = user.getUid();
+        }
         if(isMyProfile) {
-            countLayout.setVisibility(View.VISIBLE);
-            followBtn.setVisibility(View.VISIBLE);
+            editProfileBtn.setVisibility(View.VISIBLE);
+            followBtn.setVisibility(View.GONE);
             countLayout.setVisibility(View.VISIBLE);
         }
         else {
-            followBtn.setVisibility(View.VISIBLE);
             countLayout.setVisibility(View.GONE);
+            editProfileBtn.setVisibility(View.GONE);
+            buttonLayout.setVisibility(View.VISIBLE);
         }
-        countLayout.setVisibility(View.VISIBLE);
-        followBtn.setVisibility(View.VISIBLE);
-        countLayout.setVisibility(View.VISIBLE);
+
 
         loadBasicData();
         recyclerView.setHasFixedSize(true);
@@ -144,8 +157,9 @@ public class Profile extends Fragment {
     }
 
     private void loadBasicData() {
+        Toast.makeText(getContext(), "dau loadbasic", Toast.LENGTH_SHORT).show();
         DocumentReference userRef = FirebaseFirestore.getInstance().collection("Users")
-                .document(user.getUid());
+                .document(userUID);
         userRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -185,6 +199,7 @@ public class Profile extends Fragment {
         });
 
         postCountTv.setText("" + LIST_SIZE);
+        Toast.makeText(getContext(), "cuoi loadbasic", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -205,17 +220,15 @@ public class Profile extends Fragment {
         editProfileBtn = view.findViewById(R.id.edit_profileImage);
         FirebaseAuth auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
+        buttonLayout = view.findViewById(R.id.buttonLayout);
     }
 
     private void loadPostImages() {
-        if(isMyProfile){
-            uid = user.getUid();
-        }else {
-
-        }
-         uid = user.getUid();
+        Toast.makeText(getContext(), "dau loadpost", Toast.LENGTH_SHORT).show();
+        if(userUID == null)
+            return;
         DocumentReference reference = FirebaseFirestore.getInstance().collection("Users")
-                .document(uid);
+                .document(userUID);
 
         Query query = reference.collection("Post Images");
         FirestoreRecyclerOptions<PostImageModel> options = new FirestoreRecyclerOptions.Builder<PostImageModel>()
@@ -237,10 +250,14 @@ public class Profile extends Fragment {
                         .timeout(6500)
                         .into(holder.imageView);
             }
+
         };
 
-
+        Toast.makeText(getContext(), "cuoi loadPost", Toast.LENGTH_SHORT).show();
     }
+
+
+
 
     private static class PostImageHolder extends RecyclerView.ViewHolder {
         private ImageView imageView;
@@ -327,6 +344,9 @@ public class Profile extends Fragment {
 
                 });
     }
+
+
+
 
 
 }

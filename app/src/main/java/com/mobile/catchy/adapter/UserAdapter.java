@@ -37,7 +37,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull UserHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull UserHolder holder,  final int position) {
 
         assert user != null;
         if (list.get(position).getUid().equals(user.getUid())) {
@@ -55,7 +55,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
                 .timeout(6500)
                 .into(holder.profileImage);
 
-        holder.clickListener(position, list.get(position).getUid());
+        holder.itemView.setOnClickListener(v -> onUserClicked.onClicked(list.get(position).getUid()));
 
     }
 
@@ -69,10 +69,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
     }
 
     public interface OnUserClicked {
-        void onClicked(int position, String uid);
+        void onClicked(String uid);
     }
 
-    public class UserHolder extends RecyclerView.ViewHolder {
+     static class UserHolder extends RecyclerView.ViewHolder {
 
         CircleImageView profileImage;
         TextView nameTV, statusTV;
@@ -88,14 +88,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
 
         }
 
-        private void clickListener(int position, String uid) {
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onUserClicked.onClicked(position, uid);
-                }
-            });
-        }
+
 
 
     }

@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+                IS_SEARCHED_USER = false;
                 viewPager.setCurrentItem(tab.getPosition());
 
                 switch (tab.getPosition()) {
@@ -122,17 +123,25 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
         tabLayout = findViewById(R.id.tabLayout);
     }
 
-    @Override
-    public void onChange(int position) {
-        viewPager.setCurrentItem(position);
-    }
 
     @Override
     public void onBackPressed() {
         if(viewPager.getCurrentItem() == 4){
             viewPager.setCurrentItem(0);
+            IS_SEARCHED_USER = false;
         }
         else
             super.onBackPressed();
     }
+    public static String USER_ID;
+    public static boolean IS_SEARCHED_USER = false;
+    @Override
+    public void onChange(String uid) {
+        USER_ID = uid;
+        IS_SEARCHED_USER = true;
+        viewPager.setCurrentItem(4);
+    }
+
+
+
 }

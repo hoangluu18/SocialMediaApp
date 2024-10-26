@@ -49,7 +49,7 @@ public class Search extends Fragment {
     OnDataPass onDataPass;
 
     public interface OnDataPass {
-        void onChange(int position);
+        void onChange(String uid);
     }
 
     @Override
@@ -91,8 +91,8 @@ public class Search extends Fragment {
     private void clickListener() {
         adapter.OnUserClicked(new UserAdapter.OnUserClicked() {
             @Override
-            public void onClicked(int position, String uid) {
-                onDataPass.onChange(4);
+            public void onClicked( String uid) {
+                onDataPass.onChange(uid);
             }
         });
     }
