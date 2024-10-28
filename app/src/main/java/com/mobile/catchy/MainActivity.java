@@ -1,5 +1,13 @@
 package com.mobile.catchy;
 
+import static com.mobile.catchy.utils.Constants.PREF_DIRECTORY;
+import static com.mobile.catchy.utils.Constants.PREF_NAME;
+
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
 
@@ -9,6 +17,10 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
 import com.mobile.catchy.adapter.ViewPagerAdapter;
 import com.mobile.catchy.fragments.Search;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 public class MainActivity extends AppCompatActivity implements Search.OnDataPass {
     private TabLayout tabLayout;
@@ -32,8 +44,14 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_search));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_add));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_heart));
-        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.baseline_person_24));
 
+        SharedPreferences preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        String directory = preferences.getString(PREF_DIRECTORY, "");
+
+        Bitmap bitmap = loadProfileImage(directory);
+        Drawable drawable = new BitmapDrawable(getResources(), bitmap);
+
+        tabLayout.addTab(tabLayout.newTab().setIcon(drawable));
         tabLayout.setTabGravity(TabLayout.GRAVITY_CENTER);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
@@ -61,9 +79,9 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
                     case 3:
                         tab.setIcon(R.drawable.ic_heart_fill);
                         break;
-                    case 4:
-                        tab.setIcon(R.drawable.baseline_person_24);
-                        break;
+//                    case 4:
+//                        tab.setIcon(R.drawable.baseline_person_24);
+//                        break;
                 }
             }
 
@@ -84,9 +102,9 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
                     case 3:
                         tab.setIcon(R.drawable.ic_heart);
                         break;
-                    case 4:
-                        tab.setIcon(R.drawable.baseline_person_24);
-                        break;
+//                    case 4:
+//                        tab.setIcon(R.drawable.baseline_person_24);
+//                        break;
                 }
             }
 
@@ -107,9 +125,9 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
                     case 3:
                         tab.setIcon(R.drawable.ic_heart_fill);
                         break;
-                    case 4:
-                        tab.setIcon(R.drawable.baseline_person_24);
-                        break;
+//                    case 4:
+//                        tab.setIcon(R.drawable.baseline_person_24);
+//                        break;
                 }
             }
         });
@@ -140,6 +158,20 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
         USER_ID = uid;
         IS_SEARCHED_USER = true;
         viewPager.setCurrentItem(4);
+    }
+
+
+    private Bitmap loadProfileImage(String directory) {
+
+        try {
+            File file = new File(directory, "profile.png");
+
+            return BitmapFactory.decodeStream(new FileInputStream(file));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
 

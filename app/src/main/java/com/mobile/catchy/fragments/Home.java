@@ -42,7 +42,7 @@ public class Home extends Fragment {
     HomeAdapter adapter;
     private List<HomeModel> list;
     private FirebaseUser user;
-    public static int LIST_SIZE = 0;
+
     public Home() {
         // Required empty public constructor
     }
@@ -96,7 +96,7 @@ public class Home extends Fragment {
                      HomeModel model = snapshot.toObject(HomeModel.class);
 
                      list.add(new HomeModel(
-                            model.getUserName(),
+                            model.getName(),
                             model.getProfileImage(),
                             model.getImageUrl(),
                             model.getUid(),
@@ -110,7 +110,7 @@ public class Home extends Fragment {
                  }
                  adapter.notifyDataSetChanged();
 
-                 LIST_SIZE = list.size();
+
              }
          });
 

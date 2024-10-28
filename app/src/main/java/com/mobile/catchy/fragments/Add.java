@@ -246,7 +246,7 @@ public class Add extends Fragment {
         map.put("imageUrl", imageUrl);
         map.put("timestamp", FieldValue.serverTimestamp());
 
-        map.put("userName", user.getDisplayName());
+        map.put("name", user.getDisplayName());
         map.put("profileImage", user.getPhotoUrl());
         map.put("likeCount", 0);
         map.put("comments","");

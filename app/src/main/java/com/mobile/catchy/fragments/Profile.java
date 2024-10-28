@@ -2,11 +2,22 @@ package com.mobile.catchy.fragments;
 
 import static android.app.Activity.RESULT_OK;
 
+import static com.google.api.ResourceProto.resource;
 import static com.mobile.catchy.MainActivity.IS_SEARCHED_USER;
 import static com.mobile.catchy.MainActivity.USER_ID;
-import static com.mobile.catchy.fragments.Home.LIST_SIZE;
+import static com.mobile.catchy.utils.Constants.PREF_DIRECTORY;
+import static com.mobile.catchy.utils.Constants.PREF_NAME;
+import static com.mobile.catchy.utils.Constants.PREF_STORED;
+import static com.mobile.catchy.utils.Constants.PREF_URL;
 
+
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -33,6 +44,10 @@ import android.widget.Toast;
 
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.canhub.cropper.CropImage;
 import com.canhub.cropper.CropImageContract;
 import com.canhub.cropper.CropImageContractOptions;
@@ -62,6 +77,10 @@ import com.mobile.catchy.model.PostImageModel;
 import de.hdodenhof.circleimageview.CircleImageView;
 import com.canhub.cropper.CropImage;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +103,9 @@ public class Profile extends Fragment {
     List<Object> followersList,followingList_2;
     List<Object>followingList;
     DocumentReference userRef, myRef;
+    int count;
+    //test
+    String myProfileURL;
 
     // ActivityResultLauncher để cắt ảnh
     private final ActivityResultLauncher<CropImageContractOptions> cropImageLauncher =
@@ -124,6 +146,15 @@ public class Profile extends Fragment {
 
         myRef = FirebaseFirestore.getInstance().collection("Users")
                 .document(user.getUid());
+        //test
+        myRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                assert value != null;
+                myProfileURL = value.getString("profileImage");
+            }
+        });
 
         if(IS_SEARCHED_USER){
             isMyProfile = false;
@@ -295,25 +326,39 @@ public class Profile extends Fragment {
                     followingCountTv.setText("" + followingList.size());
 
                     //test
-                    CollectionReference reference = FirebaseFirestore.getInstance().collection("Users")
-                            .document(userUID)
-                            .collection("Post Images");
-
-                    reference.get().addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            LIST_SIZE = task.getResult().size(); // Lấy số lượng ảnh từ kết quả
-                            Toast.makeText(getContext(), "size: " + LIST_SIZE, Toast.LENGTH_SHORT).show();
-                            postCountTv.setText("" + LIST_SIZE);
-                        } else {
-                            Log.e("Firestore Error", "Error getting documents: ", task.getException());
-                        }
-                    });
+//                    CollectionReference reference = FirebaseFirestore.getInstance().collection("Users")
+//                            .document(userUID)
+//                            .collection("Post Images");
+//
+//                    reference.get().addOnCompleteListener(task -> {
+//                        if (task.isSuccessful()) {
+//                            int count = task.getResult().size(); // Lấy số lượng ảnh từ kết quả
+//                            Toast.makeText(getContext(), "size: " + count, Toast.LENGTH_SHORT).show();
+//                            postCountTv.setText("" + count);
+//                        } else {
+//                            Log.e("Firestore Error", "Error getting documents: ", task.getException());
+//                        }
+//                    });
 
 
                     try {
                         Glide.with(getContext().getApplicationContext())
                                 .load(profileURL)
                                 .placeholder(R.drawable.ic_person)
+                                .listener(new RequestListener<Drawable>() {
+                                    @Override
+                                    public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
+                                        return false;
+                                    }
+
+                                    @Override
+                                    public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+                                        Bitmap bitmap = ((BitmapDrawable) resource).getBitmap();
+                                        //test
+                                        storeProfileImage(bitmap, myProfileURL);
+                                        return false;
+                                    }
+                                })
                                 .timeout(6500)
                                 .into(profileImage);
                     } catch (Exception e) {
@@ -352,7 +397,56 @@ public class Profile extends Fragment {
         Toast.makeText(getContext(), "cuoi loadbasic", Toast.LENGTH_SHORT).show();
     }
 
+    private void storeProfileImage(Bitmap bitmap, String url){
+        SharedPreferences preferences = getActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        boolean isStored = preferences.getBoolean(PREF_STORED, false);
+        String urlString = preferences.getString(PREF_URL, "");
 
+        SharedPreferences.Editor editor = preferences.edit();
+
+        if (isStored && urlString.equals(url))
+            return;
+
+        if (IS_SEARCHED_USER)
+            return;
+
+        ContextWrapper contextWrapper = new ContextWrapper(getActivity().getApplicationContext());
+
+        File directory = contextWrapper.getDir("image_data", Context.MODE_PRIVATE);
+
+        if (!directory.exists()) {
+            boolean isMade = directory.mkdirs();
+            Log.d("Directory", String.valueOf(isMade));
+        }
+
+
+        File path = new File(directory, "profile.png");
+
+        FileOutputStream outputStream = null;
+
+        try {
+            outputStream = new FileOutputStream(path);
+
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+
+            try {
+                assert outputStream != null;
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        editor.putBoolean(PREF_STORED, true);
+        editor.putString(PREF_URL, url);
+        editor.putString(PREF_DIRECTORY, directory.getAbsolutePath());
+        editor.apply();
+    }
     private void init(View view){
         Toolbar toolbar = view.findViewById(R.id.toolbar);
         assert getActivity() != null;
@@ -399,6 +493,13 @@ public class Profile extends Fragment {
                         .load(model.getImageUrl())
                         .timeout(6500)
                         .into(holder.imageView);
+                postCountTv.setText("" + count);
+            }
+
+            @Override
+             public int getItemCount() {
+                count = super.getItemCount();
+                return super.getItemCount();
             }
 
         };
