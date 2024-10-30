@@ -1,6 +1,7 @@
 package com.mobile.catchy.fragments;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -117,8 +118,11 @@ public class CreateAccountFragment extends Fragment {
                         // Sign in success, update UI with the signed-in user's information
                         FirebaseUser user = auth.getCurrentUser();
 
+                        String image = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwp--EwtYaxkfsSPIpoSPucdbxAo6PancQX1gw6ETSKI6_pGNCZY4ts1N6BV5ZcN3wPbA&usqp=CAU";
+
                         UserProfileChangeRequest.Builder request = new UserProfileChangeRequest.Builder();
                         request.setDisplayName(name);
+                        request.setPhotoUri(Uri.parse(image));
 
                         assert user != null;
                         user.updateProfile(request.build());

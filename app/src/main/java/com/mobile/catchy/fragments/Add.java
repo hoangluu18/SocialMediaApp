@@ -248,8 +248,8 @@ public class Add extends Fragment {
 
         map.put("name", user.getDisplayName());
         map.put("profileImage", user.getPhotoUrl());
-        map.put("likeCount", 0);
-        map.put("comments","");
+        map.put("likes", list);
+        //map.put("comments",list);
         map.put("uid", user.getUid());
 
         reference.document(id).set(map).addOnCompleteListener(task -> {

@@ -25,7 +25,6 @@
 
         <TextView
             android:id="@+id/nameTv"
-            android:text="username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="#000"
@@ -54,12 +53,13 @@
         android:layout_below="@id/imageView"
         android:orientation="horizontal">
 
-        <ImageButton
+        <CheckBox
             android:id="@+id/likeBtn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="25dp"
             android:layout_margin="8dp"
-            android:background="@drawable/heart_check" />
+            android:checked="true"
+            android:button="@drawable/heart_check" />
 
         <ImageButton
             android:id="@+id/commentBtn"
@@ -89,7 +89,6 @@
 
     <TextView
         android:id="@+id/likeCountTv"
-        android:text="100 likes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/descTv"
@@ -102,9 +101,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/likeCountTv"
+        android:text="View all comments"
         android:padding="8dp"
-        android:text="View all comment"
-        android:visibility="gone" />
+        android:visibility="gone"
+       />
+
+
 
 
 </RelativeLayout>

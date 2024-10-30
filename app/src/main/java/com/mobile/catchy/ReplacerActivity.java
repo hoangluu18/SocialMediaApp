@@ -11,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.mobile.catchy.fragments.Comment;
 import com.mobile.catchy.fragments.CreateAccountFragment;
 import com.mobile.catchy.fragments.LoginFragment;
 
@@ -28,7 +29,13 @@ public class ReplacerActivity extends AppCompatActivity {
         });
 
         frameLayout = findViewById(R.id.frameLayout);
-        setFragment(new LoginFragment());
+        boolean isComment = getIntent().getBooleanExtra("isComment", false);
+
+        if (isComment)
+            setFragment(new Comment());
+        else
+            setFragment(new LoginFragment());
+
     }
 
     public  void setFragment(Fragment fragment){
@@ -37,6 +44,18 @@ public class ReplacerActivity extends AppCompatActivity {
         if(fragment instanceof LoginFragment || fragment instanceof CreateAccountFragment){
             fragmentTransaction.addToBackStack(null);
         }
+
+        if (fragment instanceof Comment){
+
+            String id = getIntent().getStringExtra("id");
+            String uid = getIntent().getStringExtra("uid");
+
+            Bundle bundle = new Bundle();
+            bundle.putString("id", id);
+            bundle.putString("uid", uid);
+            fragment.setArguments(bundle);
+        }
+
         fragmentTransaction.replace(frameLayout.getId(), fragment);
         fragmentTransaction.commit();
     }
