@@ -3,7 +3,7 @@ package com.mobile.catchy.model;
 public class CommentModel {
 
     String comment, commentID, postID, uid, name, profileImageUrl;
-
+    //DONE
     public CommentModel() {
     }
 

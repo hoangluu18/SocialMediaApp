@@ -19,7 +19,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -35,7 +34,7 @@ import java.util.Map;
 
 
 public class CreateAccountFragment extends Fragment {
-
+    //DONE
     private EditText nameEt, emailEt, passwordEt, confirmPasswordEt;
     private TextView loginTv;
     private Button signUpBtn;
@@ -65,6 +64,20 @@ public class CreateAccountFragment extends Fragment {
         clickListeners();
     }
 
+    private void init(View view){
+        nameEt = view.findViewById(R.id.nameET);
+        emailEt = view.findViewById(R.id.emailET);
+        passwordEt = view.findViewById(R.id.passwordET);
+        confirmPasswordEt = view.findViewById(R.id.confirmPasswordET);
+        loginTv = view.findViewById(R.id.loginTV);
+        signUpBtn = view.findViewById(R.id.signUpBtn);
+        progressBar = view.findViewById(R.id.progressBar);
+        auth = FirebaseAuth.getInstance();
+
+
+    }
+
+
     private void clickListeners() {
         loginTv.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,6 +90,7 @@ public class CreateAccountFragment extends Fragment {
         signUpBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 String name = nameEt.getText().toString();
                 String email = emailEt.getText().toString();
                 String password = passwordEt.getText().toString();
@@ -103,9 +117,6 @@ public class CreateAccountFragment extends Fragment {
                 }
                 progressBar.setVisibility(View.VISIBLE);
                 createAccount(name,email, password);
-
-
-
 
             }
         });
@@ -180,17 +191,5 @@ public class CreateAccountFragment extends Fragment {
     }
 
 
-    private void init(View view){
-        nameEt = view.findViewById(R.id.nameET);
-        emailEt = view.findViewById(R.id.emailET);
-        passwordEt = view.findViewById(R.id.passwordET);
-        confirmPasswordEt = view.findViewById(R.id.confirmPasswordET);
-        loginTv = view.findViewById(R.id.loginTV);
-        signUpBtn = view.findViewById(R.id.signUpBtn);
-        progressBar = view.findViewById(R.id.progressBar);
-        auth = FirebaseAuth.getInstance();
-
-
-    }
 
 }

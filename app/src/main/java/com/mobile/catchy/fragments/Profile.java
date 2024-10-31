@@ -1,8 +1,5 @@
 package com.mobile.catchy.fragments;
 
-import static android.app.Activity.RESULT_OK;
-
-import static com.google.api.ResourceProto.resource;
 import static com.mobile.catchy.MainActivity.IS_SEARCHED_USER;
 import static com.mobile.catchy.MainActivity.USER_ID;
 import static com.mobile.catchy.utils.Constants.PREF_DIRECTORY;
@@ -13,7 +10,6 @@ import static com.mobile.catchy.utils.Constants.PREF_URL;
 
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -27,7 +23,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -48,20 +43,15 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.canhub.cropper.CropImage;
 import com.canhub.cropper.CropImageContract;
 import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
 import com.canhub.cropper.CropImageView;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -70,12 +60,10 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.mobile.catchy.MainActivity;
 import com.mobile.catchy.R;
 import com.mobile.catchy.model.PostImageModel;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import com.canhub.cropper.CropImage;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -84,7 +72,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+
 
 public class Profile extends Fragment {
 
@@ -97,13 +85,13 @@ public class Profile extends Fragment {
     FirestoreRecyclerAdapter<PostImageModel, PostImageHolder> adapter;
     private FirebaseUser user;
     private ImageButton editProfileBtn;
-    boolean isMyProfile = false;
+    boolean isMyProfile = true;
     private LinearLayout buttonLayout;
     boolean isFollowed;
-    List<Object> followersList,followingList_2;
-    List<Object>followingList;
+    List<String> followersList, followingList_2, followingList;
     DocumentReference userRef, myRef;
     int count;
+
     //test
     String myProfileURL;
 
@@ -142,8 +130,6 @@ public class Profile extends Fragment {
 
         init(view);
 
-
-
         myRef = FirebaseFirestore.getInstance().collection("Users")
                 .document(user.getUid());
         //test
@@ -162,10 +148,12 @@ public class Profile extends Fragment {
 
             loadData();
         }
+
         else{
             isMyProfile = true;
             userUID = user.getUid();
         }
+
         if(isMyProfile) {
             editProfileBtn.setVisibility(View.VISIBLE);
             followBtn.setVisibility(View.GONE);
@@ -187,101 +175,97 @@ public class Profile extends Fragment {
 
         recyclerView.setAdapter(adapter);
 
-
-
-        
         clickListeners();
     }
 
     private void loadData() {
-        myRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if(error != null){
-                    Log.e("Tag_b"," " + error.getMessage());
-                    return;
-                }
-
-                if(value == null || !value.exists()){
-                   return;
-                }
-                followingList_2 = (List<Object>) value.get("following");
+        myRef.addSnapshotListener((value, error) -> {
+            if(error != null){
+                Log.e("Tag_b"," " + error.getMessage());
+                return;
             }
+
+            if(value == null || !value.exists()){
+               return;
+            }
+            followingList_2 = (List<String>) value.get("following");
         });
     }
 
     private void clickListeners() {
 
-        followBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(isFollowed){
-                    followersList.remove(user.getUid());
+        followBtn.setOnClickListener(view -> {
 
-                    followingList_2.remove(userUID);
+            if(isFollowed){
 
-                    final Map<String,Object> map_2 = new HashMap<>();
-                    map_2.put("following", followingList_2);
+                followersList.remove(user.getUid());  //opposite user
 
-                    Map<String,Object> map = new HashMap<>();
-                    map.put("followers", followersList);
+                followingList_2.remove(userUID);   //us
 
+                final Map<String,Object> map_2 = new HashMap<>();
+                map_2.put("following", followingList_2);
 
-                    userRef.update(map).addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            followBtn.setText("Follow");
-                            isFollowed = false;
-                            myRef.update(map_2).addOnCompleteListener(task1 -> {
-                                if (task1.isSuccessful()) {
-                                    Toast.makeText(getContext(), "UnFollowed", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    assert task1.getException() != null;
-                                    Log.e("Tag_3", task1.getException().getMessage());
-                                }
-                            });
-
-                        } else {
-                            assert task.getException() != null;
-                            Log.e("Tag", "" + task.getException().getMessage());
-                        }
-                    });
-
-                }else{
-                    followersList.add(user.getUid());
-
-                    followingList_2.add(userUID);
-
-                    final Map<String,Object> map_2 = new HashMap<>();
-                    map_2.put("following", followingList_2);
-
-                    Map<String,Object> map = new HashMap<>();
-                    map.put("followers", followersList);
-
-                    userRef.update(map).addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            followBtn.setText("UnFollow");
-                            isFollowed = true;
-                            myRef.update(map_2).addOnCompleteListener(task12 -> {
-                                if (task12.isSuccessful()) {
-                                    Toast.makeText(getContext(), "Followed", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    assert task12.getException() != null;
-                                    Log.e("tag_3_1", task12.getException().getMessage());
-                                }
-                            });
+                Map<String,Object> map = new HashMap<>();
+                map.put("followers", followersList);
 
 
-                        } else {
-                            assert task.getException() != null;
-                            Log.e("Tag", "" + task.getException().getMessage());
-                        }
-                    });
+                userRef.update(map).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        followBtn.setText("Follow");
+                        //isFollowed = false;
+
+                        myRef.update(map_2).addOnCompleteListener(task1 -> {
+                            if (task1.isSuccessful()) {
+                                Toast.makeText(getContext(), "UnFollowed", Toast.LENGTH_SHORT).show();
+                            } else {
+                                assert task1.getException() != null;
+                                Log.e("Tag_3", task1.getException().getMessage());
+                            }
+                        });
+
+                    } else {
+                        assert task.getException() != null;
+                        Log.e("Tag", "" + task.getException().getMessage());
+                    }
+                });
+
+            }else{
+
+                followersList.add(user.getUid()); //opposite user
+
+                followingList_2.add(userUID);   //us
+
+                final Map<String,Object> map_2 = new HashMap<>();
+                map_2.put("following", followingList_2);
+
+                Map<String,Object> map = new HashMap<>();
+                map.put("followers", followersList);
+
+                userRef.update(map).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        followBtn.setText("UnFollow");
+                        //isFollowed = true;
+                        myRef.update(map_2).addOnCompleteListener(task12 -> {
+                            if (task12.isSuccessful()) {
+                                //Toast.makeText(getContext(), "Followed", Toast.LENGTH_SHORT).show();
+                            } else {
+                                assert task12.getException() != null;
+                                Log.e("tag_3_1", task12.getException().getMessage());
+                            }
+                        });
+
+
+                    } else {
+                        assert task.getException() != null;
+                        Log.e("Tag", "" + task.getException().getMessage());
+                    }
+                });
 
 
 
-                }
             }
         });
+
         editProfileBtn.setOnClickListener(v -> {
             // Tạo các tùy chọn cho việc cắt ảnh
             CropImageOptions cropImageOptions = new CropImageOptions();
@@ -299,7 +283,7 @@ public class Profile extends Fragment {
     }
 
     private void loadBasicData() {
-        Toast.makeText(getContext(), "dau loadbasic", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), "dau loadbasic", Toast.LENGTH_SHORT).show();
 
         userRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -319,29 +303,16 @@ public class Profile extends Fragment {
                     toolbarNameTv.setText(name);
                     statusTv.setText(status);
 
-                    followersList = (List<Object>) value.get("followers");
-                    followingList = (List<Object>) value.get("following");
+                    followersList = (List<String>) value.get("followers");
+                    followingList = (List<String>) value.get("following");
 
                     followersCountTv.setText("" + followersList.size());
                     followingCountTv.setText("" + followingList.size());
 
-                    //test
-//                    CollectionReference reference = FirebaseFirestore.getInstance().collection("Users")
-//                            .document(userUID)
-//                            .collection("Post Images");
-//
-//                    reference.get().addOnCompleteListener(task -> {
-//                        if (task.isSuccessful()) {
-//                            int count = task.getResult().size(); // Lấy số lượng ảnh từ kết quả
-//                            Toast.makeText(getContext(), "size: " + count, Toast.LENGTH_SHORT).show();
-//                            postCountTv.setText("" + count);
-//                        } else {
-//                            Log.e("Firestore Error", "Error getting documents: ", task.getException());
-//                        }
-//                    });
-
 
                     try {
+
+                        assert getContext() != null;
                         Glide.with(getContext().getApplicationContext())
                                 .load(profileURL)
                                 .placeholder(R.drawable.ic_person)
@@ -362,6 +333,7 @@ public class Profile extends Fragment {
                                 })
                                 .timeout(6500)
                                 .into(profileImage);
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -375,18 +347,6 @@ public class Profile extends Fragment {
                             followBtn.setText("Follow");
                         }
                     }
-//                    if(followersList.contains(userUID)){
-//                        followBtn.setText("Unfollow");
-//                        isFollowed = true;
-//                    }
-//                    else {
-//                        isFollowed = false;
-//                        followBtn.setText("Follow");
-//                    }
-
-
-
-
 
                 }
 
@@ -394,8 +354,6 @@ public class Profile extends Fragment {
             };
         });
 
-//        postCountTv.setText("" + LIST_SIZE);
-        Toast.makeText(getContext(), "cuoi loadbasic", Toast.LENGTH_SHORT).show();
     }
 
     private void storeProfileImage(Bitmap bitmap, String url){
@@ -448,6 +406,7 @@ public class Profile extends Fragment {
         editor.putString(PREF_DIRECTORY, directory.getAbsolutePath());
         editor.apply();
     }
+
     private void init(View view){
         Toolbar toolbar = view.findViewById(R.id.toolbar);
         assert getActivity() != null;
@@ -469,7 +428,7 @@ public class Profile extends Fragment {
     }
 
     private void loadPostImages() {
-        Toast.makeText(getContext(), "dau loadpost", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), "dau loadpost", Toast.LENGTH_SHORT).show();
         if(userUID == null)
             return;
         DocumentReference reference = FirebaseFirestore.getInstance().collection("Users")
@@ -490,7 +449,7 @@ public class Profile extends Fragment {
 
             @Override
             protected void onBindViewHolder(@NonNull PostImageHolder holder, int position, @NonNull PostImageModel model) {
-                Glide.with(holder.imageView.getContext())
+                Glide.with(holder.imageView.getContext().getApplicationContext())
                         .load(model.getImageUrl())
                         .timeout(6500)
                         .into(holder.imageView);
@@ -499,13 +458,12 @@ public class Profile extends Fragment {
 
             @Override
              public int getItemCount() {
-                count = super.getItemCount();
                 return super.getItemCount();
             }
 
         };
 
-        Toast.makeText(getContext(), "cuoi loadPost", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), "cuoi loadPost", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -531,27 +489,9 @@ public class Profile extends Fragment {
     }
 
 
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == RESULT_OK) {
-//
-//            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-//
-//            if (result == null)
-//                return;
-//
-//            Uri uri = result.getUri();
-//
-//            uploadImage(uri);
-//
-//        }
-//
-//    }
 
     private void uploadImage(Uri uri) {
-         StorageReference reference = FirebaseStorage.getInstance().getReference().child("Profile Images");
+         final StorageReference reference = FirebaseStorage.getInstance().getReference().child("Profile Images");
 
         reference.putFile(uri)
                 .addOnCompleteListener(task -> {

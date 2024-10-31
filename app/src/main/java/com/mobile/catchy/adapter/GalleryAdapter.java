@@ -1,7 +1,5 @@
 package com.mobile.catchy.adapter;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +17,7 @@ import java.util.List;
 
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.GalleryHolder> {
-
+    //DONE
     SendImage onSendImage;
     private List<GalleryImages> list;
 
@@ -43,16 +41,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.GalleryH
                 .load(list.get(position).getPicUri())
                 .into(holder.imageView);
 
-        holder.imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Sử dụng getAdapterPosition() để lấy vị trí chính xác khi click
-                int adapterPosition = holder.getAdapterPosition();
-                if (adapterPosition != RecyclerView.NO_POSITION) {
-                    chooseImage(list.get(adapterPosition).getPicUri());
-                }
-            }
-        });
+        holder.imageView.setOnClickListener(v -> chooseImage(list.get(holder.getAbsoluteAdapterPosition()).getPicUri()));
     }
 
     private void chooseImage(Uri picUri) {
@@ -65,8 +54,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.GalleryH
         return list.size();
     }
 
+    public void SendImage(SendImage sendImage) {
+        this.onSendImage = sendImage;
+    }
 
-     class GalleryHolder extends RecyclerView.ViewHolder {
+    public interface SendImage {
+        void onSend(Uri picUri);
+    }
+
+     static class GalleryHolder extends RecyclerView.ViewHolder {
 
         ImageView imageView;
 
@@ -75,22 +71,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.GalleryH
             imageView = itemView.findViewById(R.id.imageView);
 
         }
-    }
-
-
-    public interface SendImage {
-        void onSend(Uri picUri);
-    }
-
-
-    public void SendImage(SendImage sendImage) {
-        this.onSendImage = sendImage;
-    }
-
-    public void addImages(List<GalleryImages> newImages) {
-        int startPosition = list.size();
-        list.addAll(newImages);
-        notifyItemRangeInserted(startPosition, newImages.size());
     }
 
 }

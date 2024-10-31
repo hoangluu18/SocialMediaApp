@@ -102,20 +102,16 @@ public class Home extends Fragment {
 
             @Override
             public void setCommentCount(TextView textView) {
-                Activity  activity = getActivity();
-                commentCount.observe((LifecycleOwner) getContext(), new Observer<Integer>() {
-                    @Override
-                    public void onChanged(Integer integer) {
-                        if( commentCount.getValue() == 0){
-                            textView.setVisibility(View.GONE);
-                        }else{
-                            textView.setVisibility(View.VISIBLE);
-                        }
-                        textView.setText("See all +" + commentCount.getValue() + " comments");
-                    }
-                });
 
-
+//                commentCount.observe((LifecycleOwner) getContext(), integer -> {
+//                    if( integer == 0){
+//                        textView.setVisibility(View.GONE);
+//                    }else{
+//                        textView.setVisibility(View.VISIBLE);
+//                        textView.setText("See all + " + integer + " comments");
+//                    }
+//
+//                });
 
             }
         });
@@ -127,132 +123,84 @@ public class Home extends Fragment {
         final DocumentReference reference = FirebaseFirestore.getInstance().collection("Users")
                 .document(user.getUid());
         final CollectionReference collectionReference = FirebaseFirestore.getInstance().collection("Users");
-//        CollectionReference reference = FirebaseFirestore.getInstance().collection("Users")
-//                        .document(user.getUid())
-//                        .collection("Post Images");
 
-        reference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if(error != null) {
-                    Log.d("Error: ", error.getMessage());
-                    return;
-                }
 
-                if(value == null) {
-                   return;
-                }
-
-                List<String> uidList = (List<String>) value.get("following");
-
-                if (uidList == null || uidList.isEmpty()) {
-                    return;
-                }
-
-                collectionReference.whereIn("uid",uidList)
-                        .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                            @Override
-                            public void onEvent(@Nullable QuerySnapshot value1, @Nullable FirebaseFirestoreException error1) {
-                                if (error1 != null){
-                                    Log.d("Error: ", error.getMessage());
-                                }
-                                if(value1 == null) {
-                                    Log.e("Error: ", "No data found");
-                                    return;
-                                }
-
-                                for(QueryDocumentSnapshot snapshot : value1){
-
-                                    snapshot.getReference().collection("Post Images")
-                                            .addSnapshotListener((value11, error11) -> {
-                                                if (error11 != null){
-                                                    Log.d("Error: ", error11.getMessage());
-                                                }
-                                                if(value11 == null) {
-                                                    Log.e("Error: ", "No data found");
-                                                    return;
-                                                }
-
-                                                list.clear();
-                                                for (QueryDocumentSnapshot snapshot1 : value11) {
-                                                    if( !snapshot1.exists() ) {
-                                                        Log.e("Error: ", "No data found");
-                                                        return;
-                                                    }
-                                                    HomeModel model = snapshot1.toObject(HomeModel.class);
-
-                                                    list.add(new HomeModel(
-                                                            model.getName(),
-                                                            model.getProfileImage(),
-                                                            model.getImageUrl(),
-                                                            model.getUid(),
-                                                            model.getDescription(),
-                                                            model.getId(),
-                                                            model.getTimestamp(),
-                                                            model.getLikes()
-                                                    ));
-
-                                                    snapshot1.getReference().collection("Comments").get()
-                                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                                @Override
-                                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                                    if(task.isSuccessful()){
-                                                                        int count = 0;
-                                                                        for(QueryDocumentSnapshot snapshot2 : task.getResult()){
-                                                                            count++;
-                                                                        }
-                                                                        commentCount.setValue(count);
-                                                                    }
-                                                                }
-                                                            });
-                                                }
-                                                adapter.notifyDataSetChanged();
-                                            });
-                                }
-                            }
-                        });
+        reference.addSnapshotListener((value, error) -> {
+            if(error != null) {
+                Log.d("Error: ", error.getMessage());
+                return;
             }
+
+            if(value == null) {
+               return;
+            }
+
+            List<String> uidList = (List<String>) value.get("following");
+
+            if (uidList == null || uidList.isEmpty()) {
+                return;
+            }
+
+            collectionReference.whereIn("uid",uidList)
+                    .addSnapshotListener((value1, error1) -> {
+                        if (error1 != null){
+                            Log.d("Error: ", error.getMessage());
+                        }
+                        if(value1 == null) {
+                            Log.e("Error: ", "No data found");
+                            return;
+                        }
+
+                        for(QueryDocumentSnapshot snapshot : value1){
+
+                            snapshot.getReference().collection("Post Images")
+                                    .addSnapshotListener((value11, error11) -> {
+                                        if (error11 != null){
+                                            Log.d("Error: ", error11.getMessage());
+                                        }
+                                        if(value11 == null) {
+                                            Log.e("Error: ", "No data found");
+                                            return;
+                                        }
+
+                                        list.clear();
+
+                                        for (final QueryDocumentSnapshot snapshot1 : value11) {
+                                            if( !snapshot1.exists() ) {
+                                                Log.e("Error: ", "No data found");
+                                                return;
+                                            }
+                                            HomeModel model = snapshot1.toObject(HomeModel.class);
+
+//                                            list.add(new HomeModel(
+//                                                    model.getName(),
+//                                                    model.getProfileImage(),
+//                                                    model.getImageUrl(),
+//                                                    model.getUid(),
+//                                                    model.getDescription(),
+//                                                    model.getId(),
+//                                                    model.getTimestamp(),
+//                                                    model.getLikes()
+//                                            ));
+
+                                            snapshot1.getReference().collection("Comments").get()
+                                                    .addOnCompleteListener(task -> {
+                                                        if (task.isSuccessful() && task.getResult() != null) {
+                                                            int count = task.getResult().size();
+                                                            model.setCommentCount(count); // Cập nhật số lượng bình luận cho từng model
+                                                            adapter.notifyDataSetChanged(); // Thông báo thay đổi cho adapter
+                                                        } else {
+                                                            Log.e("FirestoreError", "Failed to get comments", task.getException());
+                                                            model.setCommentCount(0); // Đặt giá trị bằng 0 nếu có lỗi
+                                                        }
+                                                    });
+                                            list.add(model);
+                                        }
+                                    });
+
+                        }
+                    });
         });
-
-//         reference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-//             @Override
-//             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-//                 if(error != null) {
-//                     Log.e("Error: ", error.getMessage());
-//                     return;
-//                 }
-//
-//                 if(value == null) {
-//                     Log.e("Error: ", "No data found");
-//                     return;
-//                 }
-//                 list.clear();
-//                 for (QueryDocumentSnapshot snapshot : value) {
-//                     if( !snapshot.exists() ) {
-//                         Log.e("Error: ", "No data found");
-//                         return;
-//                     }
-//                     HomeModel model = snapshot.toObject(HomeModel.class);
-//
-//                     list.add(new HomeModel(
-//                            model.getName(),
-//                            model.getProfileImage(),
-//                            model.getImageUrl(),
-//                            model.getUid(),
-//                            model.getComments(),
-//                            model.getDescription(),
-//                            model.getId(),
-//                            model.getTimestamp(),
-//                            model.getLikes()
-//                     ));
-//
-//                 }
-//                 adapter.notifyDataSetChanged();
-//
-//
-//             }
-//         });
-
 
     }
 

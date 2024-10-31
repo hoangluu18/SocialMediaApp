@@ -14,6 +14,7 @@ import com.mobile.catchy.fragments.Search;
 
 
 public class ViewPagerAdapter extends FragmentStatePagerAdapter {
+    //DONE
     int noOfTabs;
 
     public ViewPagerAdapter(@NonNull FragmentManager fm, int noOfTabs) {

@@ -26,7 +26,7 @@ import com.mobile.catchy.ReplacerActivity;
 
 
 public class ForgotPassword extends Fragment {
-
+    //DONE
     private TextView loginTv;
     private Button recoverBtn;
     private EditText emailEt;

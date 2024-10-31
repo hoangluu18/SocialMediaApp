@@ -20,7 +20,7 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
-
+    //DONE
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     OnUserClicked onUserClicked;
     List<Users> list;
@@ -40,12 +40,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
     public void onBindViewHolder(@NonNull UserHolder holder,  final int position) {
 
         assert user != null;
+
         if (list.get(position).getUid().equals(user.getUid())) {
             holder.layout.setVisibility(View.GONE);
             holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
         } else {
             holder.layout.setVisibility(View.VISIBLE);
         }
+
         holder.nameTV.setText(list.get(position).getName());
         holder.statusTV.setText(list.get(position).getStatus());
 
@@ -88,10 +90,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
 
         }
 
-
-
-
     }
-
 
 }

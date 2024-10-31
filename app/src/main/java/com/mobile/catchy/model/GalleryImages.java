@@ -3,7 +3,7 @@ package com.mobile.catchy.model;
 import android.net.Uri;
 
 public class GalleryImages {
-
+    //DONE
     public Uri picUri;
 
     public GalleryImages() {

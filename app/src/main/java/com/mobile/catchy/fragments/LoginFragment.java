@@ -31,8 +31,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Source;
-import com.google.firebase.firestore.auth.User;
 import com.mobile.catchy.MainActivity;
 import com.mobile.catchy.R;
 import com.mobile.catchy.ReplacerActivity;
@@ -41,11 +39,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+
 
 
 public class LoginFragment extends Fragment {
-
+    //almost done
     private EditText emaiET, passwordET;
     private TextView signUpTV, forgotPasswordTV;
     private Button loginBtn, googleSignInBtn;
@@ -77,18 +75,42 @@ public class LoginFragment extends Fragment {
 
     }
 
+    private void init(View view) {
+        emaiET = view.findViewById(R.id.emailET);
+        passwordET = view.findViewById(R.id.passwordET);
+        signUpTV = view.findViewById(R.id.signUpTV);
+        forgotPasswordTV = view.findViewById(R.id.forgotTV);
+        loginBtn = view.findViewById(R.id.loginBtn);
+        googleSignInBtn = view.findViewById(R.id.googleSignInBtn);
+        progressBar = view.findViewById(R.id.progressBar);
+
+
+        auth = FirebaseAuth.getInstance();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), gso);
+    }
+
+
     private void clickListeners() {
+
         forgotPasswordTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ((ReplacerActivity) getActivity()).setFragment(new ForgotPassword());
             }
         });
+
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 String email = emaiET.getText().toString();
                 String password = passwordET.getText().toString();
+
                 if (email.isEmpty() || !email.matches(EMAIL_REGEX)) {
                     emaiET.setError("Please input valid email");
                     return;
@@ -100,6 +122,7 @@ public class LoginFragment extends Fragment {
                 }
 
                 progressBar.setVisibility(View.VISIBLE);
+
                 auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
                     if(task.isSuccessful()) {
                        FirebaseUser user = auth.getCurrentUser();
@@ -139,24 +162,6 @@ public class LoginFragment extends Fragment {
     }
 
 
-    private void init(View view) {
-        emaiET = view.findViewById(R.id.emailET);
-        passwordET = view.findViewById(R.id.passwordET);
-        signUpTV = view.findViewById(R.id.signUpTV);
-        forgotPasswordTV = view.findViewById(R.id.forgotTV);
-        loginBtn = view.findViewById(R.id.loginBtn);
-        googleSignInBtn = view.findViewById(R.id.googleSignInBtn);
-        progressBar = view.findViewById(R.id.progressBar);
-
-
-        auth = FirebaseAuth.getInstance();
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-
-        mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), gso);
-    }
 
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
@@ -205,7 +210,9 @@ public class LoginFragment extends Fragment {
     }
 
     private void updateUI(FirebaseUser user) {
+
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getActivity());
+
         DocumentReference reference = FirebaseFirestore.getInstance().collection("Users")
                 .document(user.getUid());
 
@@ -250,9 +257,5 @@ public class LoginFragment extends Fragment {
             Toast.makeText(getContext(), "Failed to retrieve data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });
     }
-
-
-
-
 
 }

@@ -114,83 +114,12 @@ public class Add extends Fragment {
         adapter = new GalleryAdapter(list);
 
         recyclerView.setAdapter(adapter);
-//        // Thêm OnScrollListener để tải thêm ảnh khi cuộn
-//        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-//            @Override
-//            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-//                super.onScrolled(recyclerView, dx, dy);
-//
-//                GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
-//                int visibleItemCount = layoutManager.getChildCount();
-//                int totalItemCount = layoutManager.getItemCount();
-//                int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-//
-//                if (!isLoading && (visibleItemCount + firstVisibleItemPosition) >= totalItemCount
-//                        && firstVisibleItemPosition >= 0) {
-//                    // Cuộn tới cuối danh sách, tải thêm ảnh
-//                    loadMoreImages();
-//                }
-//            }
-//        });
 
         clickListeners();
 
 
     }
 
-//    private void loadMoreImages() {
-//        isLoading = true;
-//
-//        // Giả lập việc tải ảnh với độ trễ nhỏ (có thể thay thế bằng truy vấn MediaStore thực tế)
-//        new Handler().postDelayed(() -> {
-//            List<GalleryImages> newImages = loadImagesFromMediaStore(currentPage, pageSize);
-//            adapter.addImages(newImages);
-//            currentPage++; // Tăng trang lên sau khi tải xong
-//            isLoading = false; // Đặt lại cờ để cho phép tải thêm nếu cần
-//        }, 1000);
-//    }
-
-//    private List<GalleryImages> loadImagesFromMediaStore(int page, int pageSize) {
-//        List<GalleryImages> imageList = new ArrayList<>();
-//        ContentResolver contentResolver = getContext().getContentResolver();
-//        Uri collection;
-//
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//            collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
-//        } else {
-//            collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-//        }
-//
-//        String[] projection = new String[]{
-//                MediaStore.Images.Media._ID,
-//                MediaStore.Images.Media.DISPLAY_NAME
-//        };
-//
-//        String selection = MediaStore.Images.Media.MIME_TYPE + "=?";
-//        String[] selectionArgs = new String[]{"image/jpeg"};
-//
-//        String sortOrder = MediaStore.Images.Media.DATE_ADDED + " DESC LIMIT " + pageSize + " OFFSET " + (page * pageSize);
-//
-//        try (Cursor cursor = contentResolver.query(
-//                collection,
-//                projection,
-//                selection,
-//                selectionArgs,
-//                sortOrder)) {
-//            if (cursor != null) {
-//                int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
-//
-//                while (cursor.moveToNext()) {
-//                    long id = cursor.getLong(idColumn);
-//                    Uri contentUri = ContentUris.withAppendedId(
-//                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-//                    imageList.add(new GalleryImages(contentUri));
-//                }
-//            }
-//        }
-//
-//        return imageList;
-//    }
 
     private void clickListeners(){
         adapter.SendImage(picUri ->
@@ -206,7 +135,6 @@ public class Add extends Fragment {
                     cropLauncher.launch(new CropImageContractOptions(picUri, options));
 
 
-                    // CropImage.activity(picUri).setGuidelines(CropImageView.Guidelines.ON).setAspectRatio(4, 3).start(getContext(), Add.this);
                 }
 
 
@@ -355,74 +283,74 @@ public class Add extends Fragment {
 
         });
 
-    private void loadImagesFromMediaStoreAsync() {
-        new  AsyncTask<Void, Void, List<GalleryImages>>() {
-            @Override
-            protected List<GalleryImages> doInBackground(Void... voids) {
-                List<GalleryImages> imageList = new ArrayList<>();
-                assert getContext() != null;
-                ContentResolver contentResolver = getContext().getContentResolver();
-
-//                ContentResolver contentResolver = requireContext().getContentResolver();
-                Uri collection;
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
-                } else {
-                    collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                }
-
-                String[] projection = new String[]{
-                        MediaStore.Images.Media._ID,
-                        MediaStore.Images.Media.DISPLAY_NAME,
-                        MediaStore.Images.Media.RELATIVE_PATH // Dùng để lọc đường dẫn tương đối
-                };
-
-                // Lọc ảnh trong thư mục DCIM/Camera
-//                String selection = "(" + MediaStore.Images.Media.MIME_TYPE + "=? OR " +
-//                        MediaStore.Images.Media.MIME_TYPE + "=?) AND " +
-//                        MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
-//                String[] selectionArgs = new String[]{"image/jpeg", "image/png", "%AndroidNhat2%"};
-
-                String selection = MediaStore.Images.Media.MIME_TYPE + "=? OR " +
-                        MediaStore.Images.Media.MIME_TYPE + "=?";
-                String[] selectionArgs = new String[]{"image/jpeg", "image/png"};
-//                String selection = "(" + MediaStore.Images.Media.MIME_TYPE + "=? OR " +
-//                        MediaStore.Images.Media.MIME_TYPE + "=?) AND " +
-//                        MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
-//                String[] selectionArgs = new String[]{"image/jpeg", "image/png", "%DCIM/Camera%"};
-
-                try (Cursor cursor = contentResolver.query(
-                        collection,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        MediaStore.Images.Media.DATE_ADDED + " DESC")) {
-                    if (cursor != null) {
-                        int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
-
-                        while (cursor.moveToNext()) {
-                            long id = cursor.getLong(idColumn);
-                            Uri contentUri = ContentUris.withAppendedId(
-                                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-                            imageList.add(new GalleryImages(contentUri));
-                        }
-                    }
-                }
-
-                return imageList;
-            }
-
-            @Override
-            protected void onPostExecute(List<GalleryImages> result) {
-                // Cập nhật danh sách ảnh trên UI thread
-                list.clear();
-                list.addAll(result);
-                adapter.notifyDataSetChanged();
-            }
-        }.execute();
-        //Toast.makeText(getContext(), "Loaded\n", Toast.LENGTH_SHORT).show();
-    }
+//    private void loadImagesFromMediaStoreAsync() {
+//        new  AsyncTask<Void, Void, List<GalleryImages>>() {
+//            @Override
+//            protected List<GalleryImages> doInBackground(Void... voids) {
+//                List<GalleryImages> imageList = new ArrayList<>();
+//                assert getContext() != null;
+//                ContentResolver contentResolver = getContext().getContentResolver();
+//
+////                ContentResolver contentResolver = requireContext().getContentResolver();
+//                Uri collection;
+//
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//                    collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
+//                } else {
+//                    collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+//                }
+//
+//                String[] projection = new String[]{
+//                        MediaStore.Images.Media._ID,
+//                        MediaStore.Images.Media.DISPLAY_NAME,
+//                        MediaStore.Images.Media.RELATIVE_PATH // Dùng để lọc đường dẫn tương đối
+//                };
+//
+//                // Lọc ảnh trong thư mục DCIM/Camera
+////                String selection = "(" + MediaStore.Images.Media.MIME_TYPE + "=? OR " +
+////                        MediaStore.Images.Media.MIME_TYPE + "=?) AND " +
+////                        MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
+////                String[] selectionArgs = new String[]{"image/jpeg", "image/png", "%AndroidNhat2%"};
+//
+//                String selection = MediaStore.Images.Media.MIME_TYPE + "=? OR " +
+//                        MediaStore.Images.Media.MIME_TYPE + "=?";
+//                String[] selectionArgs = new String[]{"image/jpeg", "image/png"};
+////                String selection = "(" + MediaStore.Images.Media.MIME_TYPE + "=? OR " +
+////                        MediaStore.Images.Media.MIME_TYPE + "=?) AND " +
+////                        MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
+////                String[] selectionArgs = new String[]{"image/jpeg", "image/png", "%DCIM/Camera%"};
+//
+//                try (Cursor cursor = contentResolver.query(
+//                        collection,
+//                        projection,
+//                        selection,
+//                        selectionArgs,
+//                        MediaStore.Images.Media.DATE_ADDED + " DESC")) {
+//                    if (cursor != null) {
+//                        int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+//
+//                        while (cursor.moveToNext()) {
+//                            long id = cursor.getLong(idColumn);
+//                            Uri contentUri = ContentUris.withAppendedId(
+//                                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+//                            imageList.add(new GalleryImages(contentUri));
+//                        }
+//                    }
+//                }
+//
+//                return imageList;
+//            }
+//
+//            @Override
+//            protected void onPostExecute(List<GalleryImages> result) {
+//                // Cập nhật danh sách ảnh trên UI thread
+//                list.clear();
+//                list.addAll(result);
+//                adapter.notifyDataSetChanged();
+//            }
+//        }.execute();
+//        //Toast.makeText(getContext(), "Loaded\n", Toast.LENGTH_SHORT).show();
+//    }
 
     private void loadImagesFromMediaStore() {
         //Toast.makeText(getContext(), "ben trong loadImage\n", Toast.LENGTH_SHORT).show();

@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import androidx.appcompat.widget.Toolbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
@@ -23,10 +22,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 public class MainActivity extends AppCompatActivity implements Search.OnDataPass {
+
+    public static String USER_ID;
+    public static boolean IS_SEARCHED_USER = false;
+    ViewPagerAdapter pagerAdapter;
+
     private TabLayout tabLayout;
     private ViewPager viewPager;
-
-    ViewPagerAdapter pagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +41,13 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
 
     }
 
+    private void init(){
+        viewPager = findViewById(R.id.viewPager);
+        tabLayout = findViewById(R.id.tabLayout);
+    }
+
     private void addTabs() {
+
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_home));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_search));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_add));
@@ -52,14 +60,17 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
         Drawable drawable = new BitmapDrawable(getResources(), bitmap);
 
         tabLayout.addTab(tabLayout.newTab().setIcon(drawable));
+
         tabLayout.setTabGravity(TabLayout.GRAVITY_CENTER);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
         pagerAdapter  = new ViewPagerAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
         viewPager.setAdapter(pagerAdapter);
+
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 
         tabLayout.getTabAt(0).setIcon(R.drawable.ic_home_fill);
+
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -79,9 +90,6 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
                     case 3:
                         tab.setIcon(R.drawable.ic_heart_fill);
                         break;
-//                    case 4:
-//                        tab.setIcon(R.drawable.baseline_person_24);
-//                        break;
                 }
             }
 
@@ -102,9 +110,7 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
                     case 3:
                         tab.setIcon(R.drawable.ic_heart);
                         break;
-//                    case 4:
-//                        tab.setIcon(R.drawable.baseline_person_24);
-//                        break;
+
                 }
             }
 
@@ -125,41 +131,11 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
                     case 3:
                         tab.setIcon(R.drawable.ic_heart_fill);
                         break;
-//                    case 4:
-//                        tab.setIcon(R.drawable.baseline_person_24);
-//                        break;
+
                 }
             }
         });
     }
-
-    private void init(){
-//        Toolbar toolbar = findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-
-        viewPager = findViewById(R.id.viewPager);
-        tabLayout = findViewById(R.id.tabLayout);
-    }
-
-
-    @Override
-    public void onBackPressed() {
-        if(viewPager.getCurrentItem() == 4){
-            viewPager.setCurrentItem(0);
-            IS_SEARCHED_USER = false;
-        }
-        else
-            super.onBackPressed();
-    }
-    public static String USER_ID;
-    public static boolean IS_SEARCHED_USER = false;
-    @Override
-    public void onChange(String uid) {
-        USER_ID = uid;
-        IS_SEARCHED_USER = true;
-        viewPager.setCurrentItem(4);
-    }
-
 
     private Bitmap loadProfileImage(String directory) {
 
@@ -175,5 +151,21 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
     }
 
 
+    @Override
+    public void onBackPressed() {
+        if(viewPager.getCurrentItem() == 4){
+            viewPager.setCurrentItem(0);
+            IS_SEARCHED_USER = false;
+        }
+        else
+            super.onBackPressed();
+    }
+
+    @Override
+    public void onChange(String uid) {
+        USER_ID = uid;
+        IS_SEARCHED_USER = true;
+        viewPager.setCurrentItem(4);
+    }
 
 }

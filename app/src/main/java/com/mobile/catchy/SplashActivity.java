@@ -12,10 +12,10 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.ktx.Firebase;
+
 
 public class SplashActivity extends AppCompatActivity {
-
+    //DONE
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,6 +33,7 @@ public class SplashActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+
                 if (user == null) {
                     startActivity(new Intent(SplashActivity.this, ReplacerActivity.class));
                     finish();

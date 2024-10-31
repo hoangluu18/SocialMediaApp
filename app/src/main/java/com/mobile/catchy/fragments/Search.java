@@ -17,14 +17,11 @@ import android.view.ViewGroup;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.mobile.catchy.R;
@@ -32,14 +29,11 @@ import com.mobile.catchy.adapter.UserAdapter;
 import com.mobile.catchy.model.Users;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 
 public class Search extends Fragment {
-    //test
-    FirebaseUser user_current = FirebaseAuth.getInstance().getCurrentUser();
-
+    //DONE
     SearchView searchView;
     RecyclerView recyclerView;
     UserAdapter adapter;
@@ -47,6 +41,10 @@ public class Search extends Fragment {
     CollectionReference reference;
 
     OnDataPass onDataPass;
+
+    public Search() {
+        // Required empty public constructor
+    }
 
     public interface OnDataPass {
         void onChange(String uid);
@@ -59,9 +57,6 @@ public class Search extends Fragment {
         onDataPass = (OnDataPass) context;
     }
 
-    public Search() {
-        // Required empty public constructor
-    }
 
 
     @Override

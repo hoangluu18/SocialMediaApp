@@ -1,6 +1,7 @@
 package com.mobile.catchy.model;
 
 public class Users {
+    //DONE
     private String email, name, profileImage, uid, status;
 
     public Users() {

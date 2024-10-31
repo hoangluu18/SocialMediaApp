@@ -16,7 +16,9 @@ import com.mobile.catchy.fragments.CreateAccountFragment;
 import com.mobile.catchy.fragments.LoginFragment;
 
 public class ReplacerActivity extends AppCompatActivity {
+    //DONE
     private FrameLayout frameLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,6 +31,7 @@ public class ReplacerActivity extends AppCompatActivity {
         });
 
         frameLayout = findViewById(R.id.frameLayout);
+
         boolean isComment = getIntent().getBooleanExtra("isComment", false);
 
         if (isComment)
@@ -39,9 +42,11 @@ public class ReplacerActivity extends AppCompatActivity {
     }
 
     public  void setFragment(Fragment fragment){
+
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-        if(fragment instanceof LoginFragment || fragment instanceof CreateAccountFragment){
+
+        if (fragment instanceof CreateAccountFragment) {
             fragmentTransaction.addToBackStack(null);
         }
 

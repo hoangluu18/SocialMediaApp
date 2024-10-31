@@ -1,15 +1,14 @@
 package com.mobile.catchy.model;
 
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.Date;
 import java.util.List;
 
 public class HomeModel {
-
+    //DONE
     private String name, profileImage, imageUrl, uid , description,id;
-
+    private int commentCount;
     @ServerTimestamp
     private Date timestamp;
 
@@ -20,15 +19,25 @@ public class HomeModel {
     public HomeModel() {
     }
 
-    public HomeModel(String name, String profileImage, String imageUrl, String uid, String description, String id, Date timestamp, List<String> likes) {
+
+    public HomeModel(String name, String profileImage, String imageUrl, String uid, String description, String id, int commentCount, Date timestamp, List<String> likes) {
         this.name = name;
         this.profileImage = profileImage;
         this.imageUrl = imageUrl;
         this.uid = uid;
         this.description = description;
         this.id = id;
+        this.commentCount = commentCount;
         this.timestamp = timestamp;
         this.likes = likes;
+    }
+
+    public int getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(int commentCount) {
+        this.commentCount = commentCount;
     }
 
     public String getName() {

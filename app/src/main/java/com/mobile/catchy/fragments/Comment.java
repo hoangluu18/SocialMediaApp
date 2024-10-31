@@ -126,7 +126,7 @@ public class Comment extends Fragment {
                 Toast.makeText(getContext(), "No Comments", Toast.LENGTH_SHORT).show();
                 return;
             }
-
+            list.clear();
             for (DocumentSnapshot snapshot : value) {
 
                 CommentModel model = snapshot.toObject(CommentModel.class);
