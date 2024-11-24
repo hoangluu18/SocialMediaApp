@@ -39,7 +39,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.mobile.catchy.R;
 import com.mobile.catchy.ReplacerActivity;
 import com.mobile.catchy.adapter.HomeAdapter;
+import com.mobile.catchy.adapter.StoriesAdapter;
 import com.mobile.catchy.model.HomeModel;
+import com.mobile.catchy.model.StoriesModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,6 +56,10 @@ public class Home extends Fragment {
     private List<HomeModel> list;
     private FirebaseUser user;
     private final MutableLiveData<Integer> commentCount = new MutableLiveData<>();
+
+    RecyclerView storiesRecyclerView;
+    StoriesAdapter storiesAdapter;
+    List<StoriesModel> storiesModelList;
     public Home() {
         // Required empty public constructor
     }
@@ -198,6 +204,27 @@ public class Home extends Fragment {
                                         }
                                     });
 
+
+
+                            snapshot.getReference().collection("Stories")
+                                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                                            if (error1 != null){
+                                                Log.d("Error: ", error.getMessage());
+                                            }
+                                            if(value1 == null) {
+                                                Log.e("Error: ", "No data found");
+                                                return;
+                                            }
+
+                                            for(QueryDocumentSnapshot snapshot : value) {
+                                                StoriesModel model = snapshot.toObject(StoriesModel.class);
+                                                storiesModelList.add(model);
+                                            }
+                                            storiesAdapter.notifyDataSetChanged();
+                                        }
+                                    });
                         }
                     });
         });
@@ -212,6 +239,11 @@ public class Home extends Fragment {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        storiesRecyclerView = view.findViewById(R.id.storiesRecylerView);
+        storiesRecyclerView.setHasFixedSize(true);
+        storiesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true));
+        storiesAdapter = new StoriesAdapter( storiesModelList, getActivity());
+        storiesRecyclerView.setAdapter(storiesAdapter);
         FirebaseAuth auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
     }
