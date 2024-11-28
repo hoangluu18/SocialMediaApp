@@ -34,6 +34,13 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+
+    }
 }
 
 dependencies {
@@ -60,6 +67,8 @@ dependencies {
     // Also add the dependency for the Google Play services library and specify its version
     implementation("com.google.android.gms:play-services-auth:18.1.0")
 
+    implementation("com.google.android.exoplayer:exoplayer:2.15.8")
+
     // FirebaseUI for Cloud Firestore
     implementation ("com.firebaseui:firebase-ui-firestore:8.0.2")
     //crop image
@@ -67,6 +76,7 @@ dependencies {
 
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation ("com.github.a914-gowtham:android-video-trimmer:1.6.1")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

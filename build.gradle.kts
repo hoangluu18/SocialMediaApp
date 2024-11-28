@@ -3,9 +3,10 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.4.0")
+            classpath("com.android.tools.build:gradle:8.4.0")
         classpath("com.google.gms:google-services:4.4.1")
 
         // NOTE: Do not place your application dependencies here; they belong
