@@ -1,18 +1,35 @@
 package com.mobile.catchy.adapter;
 
+
+import static com.mobile.catchy.ViewStoryActivity.VIDEO_URL_KEY;
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 import android.widget.VideoView;
+import android.Manifest;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.DexterBuilder;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+
 import com.mobile.catchy.R;
+import com.mobile.catchy.StoryAddActivity;
+import com.mobile.catchy.ViewStoryActivity;
 import com.mobile.catchy.model.StoriesModel;
 
 import java.util.List;
@@ -37,15 +54,18 @@ public class StoriesAdapter extends RecyclerView.Adapter<StoriesAdapter.StoriesH
     }
 
     @Override
-    public void onBindViewHolder(@NonNull StoriesHolder holder, int position) {
+    public void onBindViewHolder(@NonNull StoriesHolder holder, @SuppressLint("RecyclerView") int position) {
         if(position == 0) {
-            Glide.with(activity).load(activity.getResources().getDrawable(R.drawable.ic_add))
+//            Glide.with(activity).load(activity.getResources().getDrawable(R.drawable.ic_add))
+//                    .into(holder.imageView);
+            Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_add);
+            Glide.with(activity)
+                    .load(drawable)
                     .into(holder.imageView);
-
             holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    activity.startActivity(new Intent());
+                    activity.startActivity(new Intent(activity, StoryAddActivity.class));
                 }
             });
         }
@@ -53,7 +73,34 @@ public class StoriesAdapter extends RecyclerView.Adapter<StoriesAdapter.StoriesH
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(position == 0) {
+                    Dexter.withContext(activity)
+                            .withPermissions(
+                                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                            )
+                            .withListener(new MultiplePermissionsListener() {
+                                @Override
+                                public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
+                                    if(multiplePermissionsReport.areAllPermissionsGranted()) {
+                                        activity.startActivity(new Intent(activity, StoryAddActivity.class));
+                                    } else {
+                                        Toast.makeText(activity, "Please allow permission from settings.", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
 
+                                @Override
+                                public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
+                                    permissionToken.continuePermissionRequest();
+                                }
+                            })
+                            .check();
+                } else {
+                    Intent intent = new Intent(activity, ViewStoryActivity.class);
+                    intent.putExtra(VIDEO_URL_KEY, list.get(position).getVideoUrl());
+
+                    activity.startActivity(intent);
+                }
             }
         });
     }

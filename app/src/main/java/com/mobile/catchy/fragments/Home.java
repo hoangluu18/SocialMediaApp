@@ -34,6 +34,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.mobile.catchy.R;
@@ -132,13 +133,13 @@ public class Home extends Fragment {
 
 
         reference.addSnapshotListener((value, error) -> {
-            if(error != null) {
+            if (error != null) {
                 Log.d("Error: ", error.getMessage());
                 return;
             }
 
-            if(value == null) {
-               return;
+            if (value == null) {
+                return;
             }
 
             List<String> uidList = (List<String>) value.get("following");
@@ -147,24 +148,24 @@ public class Home extends Fragment {
                 return;
             }
 
-            collectionReference.whereIn("uid",uidList)
+            collectionReference.whereIn("uid", uidList)
                     .addSnapshotListener((value1, error1) -> {
-                        if (error1 != null){
+                        if (error1 != null) {
                             Log.d("Error: ", error.getMessage());
                         }
-                        if(value1 == null) {
+                        if (value1 == null) {
                             Log.e("Error: ", "No data found");
                             return;
                         }
 
-                        for(QueryDocumentSnapshot snapshot : value1){
+                        for (QueryDocumentSnapshot snapshot : value1) {
 
                             snapshot.getReference().collection("Post Images")
                                     .addSnapshotListener((value11, error11) -> {
-                                        if (error11 != null){
+                                        if (error11 != null) {
                                             Log.d("Error: ", error11.getMessage());
                                         }
-                                        if(value11 == null) {
+                                        if (value11 == null) {
                                             Log.e("Error: ", "No data found");
                                             return;
                                         }
@@ -172,7 +173,7 @@ public class Home extends Fragment {
                                         list.clear();
 
                                         for (final QueryDocumentSnapshot snapshot1 : value11) {
-                                            if( !snapshot1.exists() ) {
+                                            if (!snapshot1.exists()) {
                                                 Log.e("Error: ", "No data found");
                                                 return;
                                             }
@@ -205,30 +206,35 @@ public class Home extends Fragment {
                                     });
 
 
-
-                            snapshot.getReference().collection("Stories")
-                                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                                            if (error1 != null){
-                                                Log.d("Error: ", error.getMessage());
-                                            }
-                                            if(value1 == null) {
-                                                Log.e("Error: ", "No data found");
-                                                return;
-                                            }
-
-                                            for(QueryDocumentSnapshot snapshot : value) {
-                                                StoriesModel model = snapshot.toObject(StoriesModel.class);
-                                                storiesModelList.add(model);
-                                            }
-                                            storiesAdapter.notifyDataSetChanged();
-                                        }
-                                    });
                         }
                     });
+            loadStoriess(uidList);
         });
 
+    }
+
+    void loadStoriess(List<String> followingList) {
+        Query query = FirebaseFirestore.getInstance().collection("Stories");
+        query.whereIn("uid",followingList).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if(error != null) {
+                    Log.d("Error", error.getMessage());
+                }
+
+                if(value !=  null) {
+                    return;
+                }
+
+                for(QueryDocumentSnapshot snapshot : value) {
+                    if(value.isEmpty()) {
+                        StoriesModel model = snapshot.toObject(StoriesModel.class);
+                        storiesModelList.add(model);
+                    }
+                }
+                storiesAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void init(View view) {
@@ -241,7 +247,10 @@ public class Home extends Fragment {
 
         storiesRecyclerView = view.findViewById(R.id.storiesRecylerView);
         storiesRecyclerView.setHasFixedSize(true);
-        storiesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true));
+        storiesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+
+        storiesModelList= new ArrayList<>();
+        storiesModelList.add(new StoriesModel("","","",""));
         storiesAdapter = new StoriesAdapter( storiesModelList, getActivity());
         storiesRecyclerView.setAdapter(storiesAdapter);
         FirebaseAuth auth = FirebaseAuth.getInstance();

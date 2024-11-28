@@ -19,8 +19,12 @@
         android:theme="@style/AppTheme"
         tools:targetApi="31">
         <activity
+            android:name=".ViewStoryActivity"
+            android:exported="true" />
+
+        <activity
             android:name=".PostViewActivity"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -34,8 +38,12 @@
         </activity>
         <activity
             android:name=".ReplacerActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/AppTheme" />
+
+        <activity android:name=".StoryAddActivity" />
+
+
         <activity
             android:name=".SplashActivity"
             android:exported="true">

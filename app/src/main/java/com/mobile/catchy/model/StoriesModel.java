@@ -7,11 +7,14 @@ public class StoriesModel {
 
     }
 
+
+
     public StoriesModel(String videoUrl, String id, String name, String uid) {
         this.id = id;
         this.name = name;
         this.videoUrl = videoUrl;
         this.uid = uid;
+
     }
 
     public String getId() {
@@ -30,6 +33,8 @@ public class StoriesModel {
         return videoUrl;
     }
 
+
+
     public void setId(String id) {
         this.id = id;
     }
@@ -45,4 +50,5 @@ public class StoriesModel {
     public void setVideoUrl(String videoUrl) {
         this.videoUrl = videoUrl;
     }
+
 }
