@@ -2,53 +2,57 @@ package com.mobile.catchy.model;
 
 public class StoriesModel {
 
-    String videoUrl, id, name, uid;
-    public StoriesModel() {
+    String url, id, name, uid, type;
 
+    public StoriesModel() {
     }
 
-
-
-    public StoriesModel(String videoUrl, String id, String name, String uid) {
+    public StoriesModel(String url, String id, String name, String uid, String type) {
+        this.url = url;
         this.id = id;
         this.name = name;
-        this.videoUrl = videoUrl;
         this.uid = uid;
+        this.type = type;
+    }
 
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getId() {
         return id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public String getVideoUrl() {
-        return videoUrl;
-    }
-
-
-
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public String getUid() {
+        return uid;
     }
 
-    public void setVideoUrl(String videoUrl) {
-        this.videoUrl = videoUrl;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
 }

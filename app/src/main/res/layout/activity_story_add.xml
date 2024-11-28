@@ -18,7 +18,7 @@
       android:layout_height="wrap_content"
       android:layout_centerInParent="true"
       android:contentDescription="@null"
-      android:visibility="visible" />
+      android:visibility="gone" />
 
   <ImageButton
       android:id="@+id/uploadStoryBtn"
@@ -29,6 +29,6 @@
       android:layout_margin="22dp"
       android:background="@drawable/ic_circle"
       android:src="@drawable/ic_send"
-      android:visibility="visible" />
+      android:visibility="gone" />
 
 </RelativeLayout>

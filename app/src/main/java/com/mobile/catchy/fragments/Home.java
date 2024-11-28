@@ -3,14 +3,12 @@ package com.mobile.catchy.fragments;
 import android.app.Activity;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LifecycleOwner;
+
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,33 +16,28 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.LinearLayout;
+
 import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.ServerTimestamp;
 import com.mobile.catchy.R;
-import com.mobile.catchy.ReplacerActivity;
 import com.mobile.catchy.adapter.HomeAdapter;
 import com.mobile.catchy.adapter.StoriesAdapter;
 import com.mobile.catchy.model.HomeModel;
 import com.mobile.catchy.model.StoriesModel;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +54,7 @@ public class Home extends Fragment {
     RecyclerView storiesRecyclerView;
     StoriesAdapter storiesAdapter;
     List<StoriesModel> storiesModelList;
+    Activity activity;
     public Home() {
         // Required empty public constructor
     }
@@ -78,10 +72,9 @@ public class Home extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        activity = getActivity();
         init(view);
 
-
-        //reference = FirebaseFirestore.getInstance().collection("Posts").document(user.getUid());
         list = new ArrayList<>();
         adapter = new HomeAdapter(list, getActivity());
         recyclerView.setAdapter(adapter);
@@ -131,7 +124,6 @@ public class Home extends Fragment {
                 .document(user.getUid());
         final CollectionReference collectionReference = FirebaseFirestore.getInstance().collection("Users");
 
-
         reference.addSnapshotListener((value, error) -> {
             if (error != null) {
                 Log.d("Error: ", error.getMessage());
@@ -143,11 +135,12 @@ public class Home extends Fragment {
             }
 
             List<String> uidList = (List<String>) value.get("following");
-
             if (uidList == null || uidList.isEmpty()) {
                 return;
             }
-
+            for(String uid : uidList){
+                Toast.makeText(activity, uid, Toast.LENGTH_SHORT).show();
+            }
             collectionReference.whereIn("uid", uidList)
                     .addSnapshotListener((value1, error1) -> {
                         if (error1 != null) {
@@ -170,7 +163,7 @@ public class Home extends Fragment {
                                             return;
                                         }
 
-                                        list.clear();
+                                        //list.clear();
 
                                         for (final QueryDocumentSnapshot snapshot1 : value11) {
                                             if (!snapshot1.exists()) {
@@ -178,17 +171,6 @@ public class Home extends Fragment {
                                                 return;
                                             }
                                             HomeModel model = snapshot1.toObject(HomeModel.class);
-
-//                                            list.add(new HomeModel(
-//                                                    model.getName(),
-//                                                    model.getProfileImage(),
-//                                                    model.getImageUrl(),
-//                                                    model.getUid(),
-//                                                    model.getDescription(),
-//                                                    model.getId(),
-//                                                    model.getTimestamp(),
-//                                                    model.getLikes()
-//                                            ));
 
                                             snapshot1.getReference().collection("Comments").get()
                                                     .addOnCompleteListener(task -> {
@@ -202,39 +184,49 @@ public class Home extends Fragment {
                                                         }
                                                     });
                                             list.add(model);
+                                            Toast.makeText(activity, list.size() + "" + model.getName(), Toast.LENGTH_SHORT).show();
                                         }
                                     });
 
 
                         }
                     });
-            loadStoriess(uidList);
+            loadStories(uidList);
         });
 
     }
 
-    void loadStoriess(List<String> followingList) {
+    void loadStories(List<String> followingList) {
+
         Query query = FirebaseFirestore.getInstance().collection("Stories");
-        query.whereIn("uid",followingList).addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if(error != null) {
-                    Log.d("Error", error.getMessage());
-                }
+        query.whereIn("uid", followingList).addSnapshotListener((value, error) -> {
 
-                if(value !=  null) {
-                    return;
-                }
-
-                for(QueryDocumentSnapshot snapshot : value) {
-                    if(value.isEmpty()) {
-                        StoriesModel model = snapshot.toObject(StoriesModel.class);
-                        storiesModelList.add(model);
-                    }
-                }
-                storiesAdapter.notifyDataSetChanged();
+            if (error != null) {
+                Log.d("Error: ", error.getMessage());
             }
+
+            if (value == null)
+                return;
+
+            for (QueryDocumentSnapshot snapshot : value) {
+
+                if (!value.isEmpty()) {
+                    StoriesModel model = new StoriesModel();
+                    model.setId(snapshot.getString("id"));
+                    model.setUid(snapshot.getString("uid"));
+                    model.setName(snapshot.getString("name"));
+                    model.setUrl(snapshot.getString("url"));
+                    model.setType(snapshot.getString("type"));
+                    storiesModelList.add(model);
+                    Toast.makeText(activity, model.getId() + " " + model.getUrl(), Toast.LENGTH_SHORT).show();
+                }
+
+
+            }
+            storiesAdapter.notifyDataSetChanged();
+
         });
+
     }
 
     private void init(View view) {
@@ -245,12 +237,12 @@ public class Home extends Fragment {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        storiesRecyclerView = view.findViewById(R.id.storiesRecylerView);
+        storiesRecyclerView = view.findViewById(R.id.storiesRecyclerView);
         storiesRecyclerView.setHasFixedSize(true);
         storiesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
         storiesModelList= new ArrayList<>();
-        storiesModelList.add(new StoriesModel("","","",""));
+        storiesModelList.add(new StoriesModel("", "", "", "", ""));
         storiesAdapter = new StoriesAdapter( storiesModelList, getActivity());
         storiesRecyclerView.setAdapter(storiesAdapter);
         FirebaseAuth auth = FirebaseAuth.getInstance();

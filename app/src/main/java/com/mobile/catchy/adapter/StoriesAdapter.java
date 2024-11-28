@@ -1,6 +1,7 @@
 package com.mobile.catchy.adapter;
 
 
+import static com.mobile.catchy.ViewStoryActivity.FILE_TYPE;
 import static com.mobile.catchy.ViewStoryActivity.VIDEO_URL_KEY;
 
 import android.annotation.SuppressLint;
@@ -37,6 +38,7 @@ import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class StoriesAdapter extends RecyclerView.Adapter<StoriesAdapter.StoriesHolder> {
+
     List<StoriesModel> list;
     Activity activity;
 
@@ -48,82 +50,91 @@ public class StoriesAdapter extends RecyclerView.Adapter<StoriesAdapter.StoriesH
     @NonNull
     @Override
     public StoriesHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Context context;
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.stories_layout, parent, false);
         return new StoriesHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull StoriesHolder holder, @SuppressLint("RecyclerView") int position) {
-        if(position == 0) {
-//            Glide.with(activity).load(activity.getResources().getDrawable(R.drawable.ic_add))
-//                    .into(holder.imageView);
-            Drawable drawable = ContextCompat.getDrawable(activity, R.drawable.ic_add);
+    public void onBindViewHolder(@NonNull StoriesAdapter.StoriesHolder holder, @SuppressLint("RecyclerView") int position) {
+
+        if (position == 0) {
+
             Glide.with(activity)
-                    .load(drawable)
+                    .load(activity.getResources().getDrawable(R.drawable.ic_add))
                     .into(holder.imageView);
-            holder.imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    activity.startActivity(new Intent(activity, StoryAddActivity.class));
-                }
-            });
-        }
-        Glide.with(activity).load(list.get(position).getVideoUrl()).timeout(6500).into(holder.imageView);
-        holder.imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(position == 0) {
+
+            holder.imageView.setOnClickListener(v ->
+                    activity.startActivity(new Intent(activity, StoryAddActivity.class)));
+
+        }else {
+
+            Glide.with(activity)
+                    .load(list.get(position).getUrl())
+                    .timeout(6500)
+                    .into(holder.imageView);
+
+            holder.imageView.setOnClickListener(v -> {
+
+                if (holder.getAbsoluteAdapterPosition() == 0) {
+                    //new story
+
                     Dexter.withContext(activity)
-                            .withPermissions(
-                                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                            )
+                            .withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE,
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
                             .withListener(new MultiplePermissionsListener() {
                                 @Override
                                 public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
-                                    if(multiplePermissionsReport.areAllPermissionsGranted()) {
+
+                                    if (multiplePermissionsReport.areAllPermissionsGranted()) {
+
                                         activity.startActivity(new Intent(activity, StoryAddActivity.class));
+
                                     } else {
                                         Toast.makeText(activity, "Please allow permission from settings.", Toast.LENGTH_SHORT).show();
                                     }
+
                                 }
 
                                 @Override
                                 public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
                                     permissionToken.continuePermissionRequest();
                                 }
-                            })
-                            .check();
+                            }).check();
+
                 } else {
+                    //open story
                     Intent intent = new Intent(activity, ViewStoryActivity.class);
-                    intent.putExtra(VIDEO_URL_KEY, list.get(position).getVideoUrl());
-
+                    intent.putExtra(VIDEO_URL_KEY, list.get(position).getUrl());
+                    intent.putExtra(FILE_TYPE, list.get(position).getType());
                     activity.startActivity(intent);
+
                 }
-            }
-        });
+
+            });
+
+        }
+
     }
-
-
-//    @Override
-//    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-//
-//    }
 
     @Override
     public int getItemCount() {
-        return (list != null) ? list.size() : 0;
+        return list.size();
     }
 
     static class StoriesHolder extends RecyclerView.ViewHolder {
 
         private CircleImageView imageView;
+
         public StoriesHolder(@NonNull View itemView) {
             super(itemView);
 
-            imageView = (CircleImageView)   itemView.findViewById(R.id.imageView);
+
+            imageView = (CircleImageView) itemView.findViewById(R.id.imageView);
+
         }
     }
 
 }
+
+
+
