@@ -52,14 +52,15 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_search));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_add));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_heart));
+        tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.baseline_person_24));
 
-        SharedPreferences preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-        String directory = preferences.getString(PREF_DIRECTORY, "");
-
-        Bitmap bitmap = loadProfileImage(directory);
-        Drawable drawable = new BitmapDrawable(getResources(), bitmap);
-
-        tabLayout.addTab(tabLayout.newTab().setIcon(drawable));
+//        SharedPreferences preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+//        String directory = preferences.getString(PREF_DIRECTORY, "");
+//
+//        Bitmap bitmap = loadProfileImage(directory);
+//        Drawable drawable = new BitmapDrawable(getResources(), bitmap);
+//
+//        tabLayout.addTab(tabLayout.newTab().setIcon(drawable));
 
         tabLayout.setTabGravity(TabLayout.GRAVITY_CENTER);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
@@ -90,6 +91,9 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
                     case 3:
                         tab.setIcon(R.drawable.ic_heart_fill);
                         break;
+                    case 4:
+                        tab.setIcon(R.drawable.baseline_person_24);
+                        break;
                 }
             }
 
@@ -109,6 +113,9 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
                         break;
                     case 3:
                         tab.setIcon(R.drawable.ic_heart);
+                        break;
+                    case 4:
+                        tab.setIcon(R.drawable.baseline_person_24);
                         break;
 
                 }
@@ -131,24 +138,15 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
                     case 3:
                         tab.setIcon(R.drawable.ic_heart_fill);
                         break;
+                    case 4:
+                        tab.setIcon(R.drawable.baseline_person_24);
+                        break;
 
                 }
             }
         });
     }
 
-    private Bitmap loadProfileImage(String directory) {
-
-        try {
-            File file = new File(directory, "profile.png");
-
-            return BitmapFactory.decodeStream(new FileInputStream(file));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }
-
-    }
 
 
     @Override
