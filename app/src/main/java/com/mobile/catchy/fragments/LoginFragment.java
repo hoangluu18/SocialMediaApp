@@ -219,21 +219,26 @@ public class LoginFragment extends Fragment {
         reference.get().addOnSuccessListener(documentSnapshot -> {
             List<Object> followersList;
             List<Object> followingList;
-
+            String profileImage = "";
+            Map<String, Object> map = new HashMap<>();
             // Kiểm tra nếu followers và following đã tồn tại thì lấy giá trị hiện tại
             if (documentSnapshot.exists()) {
                 followersList = (List<Object>) documentSnapshot.get("followers");
                 followingList = (List<Object>) documentSnapshot.get("following");
+                if(documentSnapshot.get("profileImage") != null)
+                    profileImage = (String) documentSnapshot.get("profileImage");
+                Toast.makeText(getContext(), "da ton tai", Toast.LENGTH_SHORT).show();
             } else {
                 followersList = new ArrayList<>(); // Nếu không tồn tại, tạo danh sách rỗng
                 followingList = new ArrayList<>();
+                profileImage = String.valueOf(account.getPhotoUrl());
+                Toast.makeText(getContext(), "chua ton tai", Toast.LENGTH_SHORT).show();
             }
 
             // Tạo map với dữ liệu mới, không thay đổi followers và following nếu đã có
-            Map<String, Object> map = new HashMap<>();
             map.put("name", account.getDisplayName());
             map.put("email", account.getEmail());
-            map.put("profileImage", String.valueOf(account.getPhotoUrl()));
+            map.put("profileImage", profileImage);
             map.put("uid", user.getUid());
             map.put("followers", followersList); // Giữ nguyên danh sách hiện tại nếu có
             map.put("following", followingList);

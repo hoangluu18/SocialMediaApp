@@ -91,6 +91,7 @@ public class Profile extends Fragment {
     List<String> followersList, followingList_2, followingList;
     DocumentReference userRef, myRef;
     int count;
+    private ImageButton logoutBtn;
 
     // ActivityResultLauncher để cắt ảnh
     private final ActivityResultLauncher<CropImageContractOptions> cropImageLauncher =
@@ -271,6 +272,13 @@ public class Profile extends Fragment {
             // Khởi chạy cropImageLauncher với options đã cấu hình
             cropImageLauncher.launch(options);
         });
+
+        logoutBtn.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut();
+            requireActivity().finish();
+        });
+
+
     }
 
     private void loadBasicData() {
@@ -341,56 +349,56 @@ public class Profile extends Fragment {
 
     }
 
-    private void storeProfileImage(Bitmap bitmap, String url){
-        SharedPreferences preferences = getActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        boolean isStored = preferences.getBoolean(PREF_STORED, false);
-        String urlString = preferences.getString(PREF_URL, "");
-
-        SharedPreferences.Editor editor = preferences.edit();
-
-        if (isStored && urlString.equals(url))
-            return;
-
-        if (IS_SEARCHED_USER)
-            return;
-
-        ContextWrapper contextWrapper = new ContextWrapper(getActivity().getApplicationContext());
-
-        File directory = contextWrapper.getDir("image_data", Context.MODE_PRIVATE);
-
-        if (!directory.exists()) {
-            boolean isMade = directory.mkdirs();
-            Log.d("Directory", String.valueOf(isMade));
-        }
-
-
-        File path = new File(directory, "profile.png");
-
-        FileOutputStream outputStream = null;
-
-        try {
-            outputStream = new FileOutputStream(path);
-
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-
-            try {
-                assert outputStream != null;
-                outputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        }
-
-        editor.putBoolean(PREF_STORED, true);
-        editor.putString(PREF_URL, url);
-        editor.putString(PREF_DIRECTORY, directory.getAbsolutePath());
-        editor.apply();
-    }
+//    private void storeProfileImage(Bitmap bitmap, String url){
+//        SharedPreferences preferences = getActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+//        boolean isStored = preferences.getBoolean(PREF_STORED, false);
+//        String urlString = preferences.getString(PREF_URL, "");
+//
+//        SharedPreferences.Editor editor = preferences.edit();
+//
+//        if (isStored && urlString.equals(url))
+//            return;
+//
+//        if (IS_SEARCHED_USER)
+//            return;
+//
+//        ContextWrapper contextWrapper = new ContextWrapper(getActivity().getApplicationContext());
+//
+//        File directory = contextWrapper.getDir("image_data", Context.MODE_PRIVATE);
+//
+//        if (!directory.exists()) {
+//            boolean isMade = directory.mkdirs();
+//            Log.d("Directory", String.valueOf(isMade));
+//        }
+//
+//
+//        File path = new File(directory, "profile.png");
+//
+//        FileOutputStream outputStream = null;
+//
+//        try {
+//            outputStream = new FileOutputStream(path);
+//
+//            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+//
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } finally {
+//
+//            try {
+//                assert outputStream != null;
+//                outputStream.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//        }
+//
+//        editor.putBoolean(PREF_STORED, true);
+//        editor.putString(PREF_URL, url);
+//        editor.putString(PREF_DIRECTORY, directory.getAbsolutePath());
+//        editor.apply();
+//    }
 
     private void init(View view){
         Toolbar toolbar = view.findViewById(R.id.toolbar);
@@ -410,6 +418,7 @@ public class Profile extends Fragment {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         startChatBtn = view.findViewById(R.id.startChatBtn);
+        logoutBtn = view.findViewById(R.id.logoutBtn);
     }
 
     private void loadPostImages() {
@@ -438,6 +447,7 @@ public class Profile extends Fragment {
                         .load(model.getImageUrl())
                         .timeout(6500)
                         .into(holder.imageView);
+                count = getItemCount();
                 postCountTv.setText("" + count);
             }
 
@@ -448,7 +458,6 @@ public class Profile extends Fragment {
 
         };
 
-        //Toast.makeText(getContext(), "cuoi loadPost", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -475,55 +484,154 @@ public class Profile extends Fragment {
 
 
 
-    private void uploadImage(Uri uri) {
-         final StorageReference reference = FirebaseStorage.getInstance().getReference().child("Profile Images");
+//    private void uploadImage(Uri uri) {
+//        final StorageReference reference = FirebaseStorage.getInstance().getReference()
+//                .child("Profile Images")
+//                .child(user.getUid())  // Thêm userId để tạo thư mục riêng cho mỗi người dùng
+//                .child("profile_image.jpg");  // Tên tệp ảnh có thể là cố định hoặc duy nhất tùy ý
+//
+//        reference.putFile(uri)
+//                .addOnCompleteListener(task -> {
+//
+//                    if (task.isSuccessful()) {
+//
+//                        reference.getDownloadUrl()
+//                                .addOnSuccessListener(uri1 -> {
+//                                    String imageURL = uri1.toString();
+//
+//                                    UserProfileChangeRequest.Builder request = new UserProfileChangeRequest.Builder();
+//                                    request.setPhotoUri(uri1);
+//
+//                                    user.updateProfile(request.build());
+//
+//                                    Map<String, Object> map = new HashMap<>();
+//                                    map.put("profileImage", imageURL);
+//
+//                                    FirebaseFirestore.getInstance().collection("Users")
+//                                            .document(user.getUid())
+//                                            .update(map).addOnCompleteListener(task1 -> {
+//
+//                                                if (task1.isSuccessful())
+//                                                    Toast.makeText(getContext(),
+//                                                            "Updated Successful", Toast.LENGTH_SHORT).show();
+//                                                else {
+//                                                    assert task1.getException() != null;
+//                                                    Toast.makeText(getContext(),
+//                                                            "Error: " + task1.getException().getMessage(),
+//                                                            Toast.LENGTH_SHORT).show();
+//                                                }
+//                                            });
+//
+//                                });
+//
+//
+//                    } else {
+//                        assert task.getException() != null;
+//                        Toast.makeText(getContext(), "Error: " + task.getException().getMessage(),
+//                                Toast.LENGTH_SHORT).show();
+//                    }
+//
+//                });
+//    }
 
+    private void uploadImage(Uri uri) {
+        final StorageReference reference = FirebaseStorage.getInstance().getReference()
+                .child("Profile Images")
+                .child(user.getUid())  // Tạo thư mục riêng cho mỗi người dùng
+                .child("profile_image.jpg");  // Tên tệp cố định cho ảnh đại diện
+
+        // Tải ảnh lên Firebase Storage
         reference.putFile(uri)
                 .addOnCompleteListener(task -> {
-
                     if (task.isSuccessful()) {
 
+                        // Lấy URL của ảnh đã tải lên
                         reference.getDownloadUrl()
                                 .addOnSuccessListener(uri1 -> {
-                                    String imageURL = uri1.toString();
+                                    String newProfileImageUrl = uri1.toString();
 
-                                    UserProfileChangeRequest.Builder request = new UserProfileChangeRequest.Builder();
-                                    request.setPhotoUri(uri1);
-
-                                    user.updateProfile(request.build());
-
-                                    Map<String, Object> map = new HashMap<>();
-                                    map.put("profileImage", imageURL);
-
-                                    FirebaseFirestore.getInstance().collection("Users")
-                                            .document(user.getUid())
-                                            .update(map).addOnCompleteListener(task1 -> {
-
-                                                if (task1.isSuccessful())
-                                                    Toast.makeText(getContext(),
-                                                            "Updated Successful", Toast.LENGTH_SHORT).show();
-                                                else {
-                                                    assert task1.getException() != null;
-                                                    Toast.makeText(getContext(),
-                                                            "Error: " + task1.getException().getMessage(),
-                                                            Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
-
+                                    // Cập nhật ảnh đại diện trong Firestore (Users collection)
+                                    updateUserProfileImage(newProfileImageUrl);
+                                })
+                                .addOnFailureListener(e -> {
+                                    // Lỗi khi lấy URL tải về của ảnh
+                                    Toast.makeText(getContext(),
+                                            "Error: " + e.getMessage(),
+                                            Toast.LENGTH_SHORT).show();
                                 });
 
-
                     } else {
+                        // Lỗi khi tải ảnh lên Firebase Storage
                         assert task.getException() != null;
-                        Toast.makeText(getContext(), "Error: " + task.getException().getMessage(),
+                        Toast.makeText(getContext(),
+                                "Error: " + task.getException().getMessage(),
                                 Toast.LENGTH_SHORT).show();
                     }
-
                 });
+    }
+
+    private void updateUserProfileImage(String newProfileImageUrl) {
+        // Cập nhật ảnh đại diện trong Users collection
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("profileImage", newProfileImageUrl);
+
+        FirebaseFirestore.getInstance().collection("Users")
+                .document(user.getUid())
+                .update(userMap)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Sau khi cập nhật ảnh đại diện thành công, tiếp tục cập nhật các bài đăng
+                        updatePostImagesProfileImage(newProfileImageUrl);
+                    } else {
+                        // Lỗi khi cập nhật ảnh trong Users collection
+                        Toast.makeText(getContext(),
+                                "Error updating user profile image: " + task.getException().getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void updatePostImagesProfileImage(String newProfileImageUrl) {
+        // Tạo map chứa dữ liệu sẽ cập nhật
+        Map<String, Object> postMap = new HashMap<>();
+        postMap.put("profileImage", newProfileImageUrl);
+
+        // Lấy reference đến subcollection "Post Images" của user
+        FirebaseFirestore.getInstance().collection("Users")
+                .document(user.getUid())  // Lấy tài liệu của người dùng dựa trên UID
+                .collection("Post Images")  // Truy cập vào subcollection "Post Images"
+                .get()  // Lấy tất cả tài liệu trong subcollection
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Duyệt qua từng bài đăng và cập nhật profileImage
+                        for (DocumentSnapshot document : task.getResult()) {
+                            // Cập nhật từng bài đăng với profileImage mới
+                            document.getReference().update(postMap)
+                                    .addOnCompleteListener(task1 -> {
+                                        if (task1.isSuccessful()) {
+                                            Log.d("ProfileImageUpdate", "Post profileImage updated successfully.");
+                                        } else {
+                                            Log.e("ProfileImageUpdate", "Error updating post profileImage: " + task1.getException().getMessage());
+                                        }
+                                    });
+                        }
+
+                        // Hiển thị thông báo hoàn tất
+                        Toast.makeText(getContext(), "Profile image updated successfully in all posts.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Lỗi khi lấy bài đăng
+                        Toast.makeText(getContext(),
+                                "Error getting posts: " + task.getException().getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+
     }
 
 
 
 
 
-}
+

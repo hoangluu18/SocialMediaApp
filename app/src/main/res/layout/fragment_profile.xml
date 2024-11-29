@@ -42,6 +42,17 @@
                 android:background="@drawable/ic_menu"
                 android:contentDescription="@null" />
 
+            <ImageButton
+                android:id="@+id/logoutBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="false"
+                android:layout_alignParentRight="false"
+                android:layout_centerVertical="true"
+                android:layout_margin="12dp"
+                android:background="@drawable/baseline_logout_24"
+                android:contentDescription="@null" />
+
         </RelativeLayout>
 
     </androidx.appcompat.widget.Toolbar>

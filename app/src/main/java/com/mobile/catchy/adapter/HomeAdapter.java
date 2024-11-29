@@ -18,11 +18,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.mobile.catchy.R;
 import com.mobile.catchy.ReplacerActivity;
 import com.mobile.catchy.model.HomeModel;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -117,8 +121,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
 
     public interface OnPressed {
         void onLiked(int position, String id,String uid, List<String> likeList, boolean isChecked);
-        
-        void setCommentCount(TextView textView);
+
+//        void setCommentCount(TextView textView);
     }
 
      class HomeHolder extends RecyclerView.ViewHolder {
@@ -150,7 +154,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
 
             commentTV = itemView.findViewById(R.id.commentTV);
 
-            onPressed.setCommentCount(commentTV);
+            //onPressed.setCommentCount(commentTV);
         }
 
         public void clickListener(final int position, final String id, String name, final String uid, List<String> likes, final String imageUrl) {
@@ -163,8 +167,53 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
                 context.startActivity(intent);
             });
 
-            likeCheckBox.setOnCheckedChangeListener((compoundButton, isChecked) -> onPressed.onLiked(position, id,uid,likes, isChecked));
+           // likeCheckBox.setOnCheckedChangeListener((compoundButton, isChecked) -> onPressed.onLiked(position, id,uid,likes, isChecked));
+            likeCheckBox.setOnClickListener(view -> {
+                boolean isChecked = likeCheckBox.isChecked();
 
+                // Cập nhật UI
+                int count = likes.size();
+                if (isChecked) {
+                    // Nếu chưa có like của user hiện tại
+                    if (!likes.contains(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                        count += 1;
+                    }
+                } else {
+                    // Nếu đã có like của user hiện tại
+                    if (likes.contains(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                        count -= 1;
+                    }
+                }
+
+                // Hiển thị text phù hợp
+                if (count == 0) {
+                    likeCountTv.setText("0 Like");
+                } else if (count == 1) {
+                    likeCountTv.setText("1 Like");
+                } else {
+                    likeCountTv.setText(count + " Likes");
+                }
+
+
+                //update firestore
+
+                DocumentReference reference = FirebaseFirestore.getInstance().collection("Users")
+                        .document(uid)
+                        .collection("Post Images")
+                        .document(id);
+
+                if(likes.contains(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                    likes.remove(FirebaseAuth.getInstance().getCurrentUser().getUid()); // unlike
+
+                } else {
+                    likes.add(FirebaseAuth.getInstance().getCurrentUser().getUid()); // like
+                }
+
+                Map<String, Object> map = new HashMap<>();
+                map.put("likes", likes);
+                reference.update(map);
+
+            });
             shareBtn.setOnClickListener(v -> {
 
                 Intent intent = new Intent(Intent.ACTION_SEND);
@@ -177,6 +226,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
 
 
         }
+
     }
 
 
