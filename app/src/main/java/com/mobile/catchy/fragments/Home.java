@@ -21,7 +21,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -91,35 +90,40 @@ public class Home extends Fragment {
 
                 if(likeList.contains(user.getUid())) {
                     likeList.remove(user.getUid()); // unlike
+
                 } else {
                     likeList.add(user.getUid()); // like
                 }
 
                 Map<String, Object> map = new HashMap<>();
                 map.put("likes", likeList);
+
                 reference.update(map);
+
             }
 
-            @Override
-            public void setCommentCount(TextView textView) {
-
-//                commentCount.observe((LifecycleOwner) getContext(), integer -> {
-//                    if( integer == 0){
-//                        textView.setVisibility(View.GONE);
-//                    }else{
-//                        textView.setVisibility(View.VISIBLE);
-//                        textView.setText("See all + " + integer + " comments");
-//                    }
+//            @Override
+//            public void setCommentCount(TextView textView) {
 //
-//                });
+////                commentCount.observe((LifecycleOwner) getContext(), integer -> {
+////                    if( integer == 0){
+////                        textView.setVisibility(View.GONE);
+////                    }else{
+////                        textView.setVisibility(View.VISIBLE);
+////                        textView.setText("See all + " + integer + " comments");
+////                    }
+////
+////                });
+//
+//            }
 
-            }
         });
     }
 
 
-
-    private void loadDataFromFirestore() {
+    //cai nay bi loi
+    private void loadDataFromFirestore2() {
+        Toast.makeText(getContext(), "Loading data", Toast.LENGTH_SHORT).show();
         final DocumentReference reference = FirebaseFirestore.getInstance().collection("Users")
                 .document(user.getUid());
         final CollectionReference collectionReference = FirebaseFirestore.getInstance().collection("Users");
@@ -138,9 +142,7 @@ public class Home extends Fragment {
             if (uidList == null || uidList.isEmpty()) {
                 return;
             }
-            for(String uid : uidList){
-                Toast.makeText(activity, uid, Toast.LENGTH_SHORT).show();
-            }
+            list.clear();
             collectionReference.whereIn("uid", uidList)
                     .addSnapshotListener((value1, error1) -> {
                         if (error1 != null) {
@@ -163,8 +165,8 @@ public class Home extends Fragment {
                                             return;
                                         }
 
-                                        //list.clear();
 
+                                        //list.clear();
                                         for (final QueryDocumentSnapshot snapshot1 : value11) {
                                             if (!snapshot1.exists()) {
                                                 Log.e("Error: ", "No data found");
@@ -177,23 +179,80 @@ public class Home extends Fragment {
                                                         if (task.isSuccessful() && task.getResult() != null) {
                                                             int count = task.getResult().size();
                                                             model.setCommentCount(count); // Cập nhật số lượng bình luận cho từng model
-                                                            adapter.notifyDataSetChanged(); // Thông báo thay đổi cho adapter
+
                                                         } else {
                                                             Log.e("FirestoreError", "Failed to get comments", task.getException());
                                                             model.setCommentCount(0); // Đặt giá trị bằng 0 nếu có lỗi
                                                         }
+                                                        //list.add(model);
+
                                                     });
                                             list.add(model);
-                                            Toast.makeText(activity, list.size() + "" + model.getName(), Toast.LENGTH_SHORT).show();
                                         }
+
                                     });
 
 
                         }
+
                     });
             loadStories(uidList);
         });
+        adapter.notifyDataSetChanged(); // Thông báo thay đổi cho adapter
+    }
 
+    private void loadDataFromFirestore() {
+        Toast.makeText(getContext(), "Loading data", Toast.LENGTH_SHORT).show();
+        final DocumentReference reference = FirebaseFirestore.getInstance().collection("Users")
+                .document(user.getUid());
+        final CollectionReference collectionReference = FirebaseFirestore.getInstance().collection("Users");
+
+        reference.get().addOnSuccessListener(value -> {
+            if (value == null) return;
+
+            List<String> uidList = (List<String>) value.get("following");
+            if (uidList == null || uidList.isEmpty()) return;
+
+            list.clear();
+
+            collectionReference.whereIn("uid", uidList)
+                    .get()
+                    .addOnSuccessListener(value1 -> {
+                        for (QueryDocumentSnapshot snapshot : value1) {
+                            snapshot.getReference().collection("Post Images")
+                                    .get()
+                                    .addOnSuccessListener(value11 -> {
+                                        for (final QueryDocumentSnapshot snapshot1 : value11) {
+                                            if (!snapshot1.exists()) continue;
+
+                                            HomeModel model = snapshot1.toObject(HomeModel.class);
+
+                                            // Lấy số lượng comment
+                                            snapshot1.getReference().collection("Comments")
+                                                    .get()
+                                                    .addOnSuccessListener(commentsSnapshot -> {
+                                                        model.setCommentCount(commentsSnapshot.size());
+
+                                                        // Thêm vào list và cập nhật UI
+                                                        if (!list.contains(model)) {  // Kiểm tra trùng lặp
+                                                            list.add(model);
+                                                            adapter.notifyDataSetChanged();
+                                                        }
+                                                    })
+                                                    .addOnFailureListener(e -> {
+                                                        model.setCommentCount(0);
+                                                        if (!list.contains(model)) {
+                                                            list.add(model);
+                                                            adapter.notifyDataSetChanged();
+                                                        }
+                                                    });
+                                        }
+                                    });
+                        }
+                    });
+
+            loadStories(uidList);
+        });
     }
 
     void loadStories(List<String> followingList) {
@@ -218,7 +277,6 @@ public class Home extends Fragment {
                     model.setUrl(snapshot.getString("url"));
                     model.setType(snapshot.getString("type"));
                     storiesModelList.add(model);
-                    Toast.makeText(activity, model.getId() + " " + model.getUrl(), Toast.LENGTH_SHORT).show();
                 }
 
 
