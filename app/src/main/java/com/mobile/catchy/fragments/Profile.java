@@ -409,6 +409,7 @@ public class Profile extends Fragment {
         editProfileBtn = view.findViewById(R.id.edit_profileImage);
         FirebaseAuth auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
+        startChatBtn = view.findViewById(R.id.startChatBtn);
     }
 
     private void loadPostImages() {
