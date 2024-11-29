@@ -72,6 +72,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 
 public class Profile extends Fragment {
@@ -86,14 +87,10 @@ public class Profile extends Fragment {
     private FirebaseUser user;
     private ImageButton editProfileBtn;
     boolean isMyProfile = true;
-    private LinearLayout buttonLayout;
     boolean isFollowed;
     List<String> followersList, followingList_2, followingList;
     DocumentReference userRef, myRef;
     int count;
-
-    //test
-    String myProfileURL;
 
     // ActivityResultLauncher để cắt ảnh
     private final ActivityResultLauncher<CropImageContractOptions> cropImageLauncher =
@@ -132,15 +129,6 @@ public class Profile extends Fragment {
 
         myRef = FirebaseFirestore.getInstance().collection("Users")
                 .document(user.getUid());
-        //test
-        myRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                assert value != null;
-                myProfileURL = value.getString("profileImage");
-            }
-        });
 
         if(IS_SEARCHED_USER){
             isMyProfile = false;
@@ -158,11 +146,14 @@ public class Profile extends Fragment {
             editProfileBtn.setVisibility(View.VISIBLE);
             followBtn.setVisibility(View.GONE);
             countLayout.setVisibility(View.VISIBLE);
+
+            //Hide chat btn
+            startChatBtn.setVisibility(View.GONE);
         }
         else {
-            countLayout.setVisibility(View.VISIBLE);
             editProfileBtn.setVisibility(View.GONE);
-            buttonLayout.setVisibility(View.VISIBLE);
+            followBtn.setVisibility(View.VISIBLE);
+
         }
         userRef = FirebaseFirestore.getInstance().collection("Users")
                 .document(userUID);
@@ -216,7 +207,7 @@ public class Profile extends Fragment {
 
                         myRef.update(map_2).addOnCompleteListener(task1 -> {
                             if (task1.isSuccessful()) {
-                                Toast.makeText(getContext(), "UnFollowed", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), "Unfollowed", Toast.LENGTH_SHORT).show();
                             } else {
                                 assert task1.getException() != null;
                                 Log.e("Tag_3", task1.getException().getMessage());
@@ -243,11 +234,11 @@ public class Profile extends Fragment {
 
                 userRef.update(map).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        followBtn.setText("UnFollow");
+                        followBtn.setText("Unfollow");
                         //isFollowed = true;
                         myRef.update(map_2).addOnCompleteListener(task12 -> {
                             if (task12.isSuccessful()) {
-                                //Toast.makeText(getContext(), "Followed", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), "Followed", Toast.LENGTH_SHORT).show();
                             } else {
                                 assert task12.getException() != null;
                                 Log.e("tag_3_1", task12.getException().getMessage());
@@ -285,73 +276,67 @@ public class Profile extends Fragment {
     private void loadBasicData() {
         //Toast.makeText(getContext(), "dau loadbasic", Toast.LENGTH_SHORT).show();
 
-        userRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    Log.e("Tag_0", error.getMessage());
-                    return;
+        userRef.addSnapshotListener((value, error) -> {
+            if (error != null) {
+                Log.e("Tag_0", error.getMessage());
+                return;
+            }
+            assert value != null;
+            if (value.exists()) {
+                String name = value.getString("name");
+                String status = value.getString("status");
+
+                String profileURL = value.getString("profileImage");
+
+                nameTv.setText(name);
+                toolbarNameTv.setText(name);
+                statusTv.setText(status);
+
+                followersList = (List<String>) value.get("followers");
+                followingList = (List<String>) value.get("following");
+
+                followersCountTv.setText("" + followersList.size());
+                followingCountTv.setText("" + followingList.size());
+
+
+                try {
+
+
+                    Glide.with(requireContext().getApplicationContext())
+                            .load(profileURL)
+                            .placeholder(R.drawable.ic_person)
+                            .circleCrop()
+                            .listener(new RequestListener<Drawable>() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+//                                    Bitmap bitmap = ((BitmapDrawable) resource).getBitmap();
+//                                    //test
+//                                    storeProfileImage(bitmap, myProfileURL);
+                                    return false;
+                                }
+                            })
+                            .timeout(6500)
+                            .into(profileImage);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                assert value != null;
-                if (value.exists()) {
-                    String name = value.getString("name");
-                    String status = value.getString("status");
-
-                    String profileURL = value.getString("profileImage");
-
-                    nameTv.setText(name);
-                    toolbarNameTv.setText(name);
-                    statusTv.setText(status);
-
-                    followersList = (List<String>) value.get("followers");
-                    followingList = (List<String>) value.get("following");
-
-                    followersCountTv.setText("" + followersList.size());
-                    followingCountTv.setText("" + followingList.size());
-
-
-                    try {
-
-                        assert getContext() != null;
-                        Glide.with(getContext().getApplicationContext())
-                                .load(profileURL)
-                                .placeholder(R.drawable.ic_person)
-                                .circleCrop()
-                                .listener(new RequestListener<Drawable>() {
-                                    @Override
-                                    public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
-                                        return false;
-                                    }
-
-                                    @Override
-                                    public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
-                                        Bitmap bitmap = ((BitmapDrawable) resource).getBitmap();
-                                        //test
-                                        storeProfileImage(bitmap, myProfileURL);
-                                        return false;
-                                    }
-                                })
-                                .timeout(6500)
-                                .into(profileImage);
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    if(!isMyProfile){
-                        if(followersList.contains(user.getUid())){
-                            followBtn.setText("Unfollow");
-                            isFollowed = true;
-                        }
-                        else{
-                            isFollowed = false;
-                            followBtn.setText("Follow");
-                        }
-                    }
+                if (followersList.contains(user.getUid())) {
+                    followBtn.setText("Unfollow");
+                    isFollowed = true;
+                } else {
+                    isFollowed = false;
+                    followBtn.setText("Follow");
 
                 }
+            }
 
 
-            };
         });
 
     }
@@ -424,7 +409,6 @@ public class Profile extends Fragment {
         editProfileBtn = view.findViewById(R.id.edit_profileImage);
         FirebaseAuth auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
-        buttonLayout = view.findViewById(R.id.buttonLayout);
     }
 
     private void loadPostImages() {

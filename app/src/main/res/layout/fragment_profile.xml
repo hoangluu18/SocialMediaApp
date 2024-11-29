@@ -120,12 +120,11 @@
         android:layout_below="@id/linear_1">
 
         <LinearLayout
-            android:visibility="visible"
             android:id="@+id/countLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            >
+            android:visibility="visible">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -211,9 +210,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/buttonLayout"
             android:layout_width="match_parent"
-            android:visibility="gone"
             android:layout_height="wrap_content"
             android:layout_below="@id/countLayout"
             android:layout_centerHorizontal="true"
@@ -231,7 +228,7 @@
                 android:minWidth="160dp"
                 android:text="Say Hi !"
                 android:textColor="@android:color/white"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/followBtn"
@@ -242,7 +239,7 @@
                 android:minWidth="160dp"
                 android:text="Follow"
                 android:textColor="@android:color/white"
-                android:visibility="visible"/>
+                android:visibility="visible" />
 
         </LinearLayout>
 
