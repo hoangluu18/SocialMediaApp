@@ -5,9 +5,11 @@
     <uses-permission android:name="android.permission.INTERNET" /> <!-- Thay thế quyền cũ bằng quyền mới -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
 
     <application
@@ -22,9 +24,11 @@
         android:theme="@style/AppTheme"
         tools:targetApi="31">
         <activity
+            android:name=".chat.ChatUsersActivity"
+            android:exported="false" />
+        <activity
             android:name=".ViewStoryActivity"
             android:exported="true" />
-
         <activity
             android:name=".PostViewActivity"
             android:exported="true">
@@ -43,10 +47,7 @@
             android:name=".ReplacerActivity"
             android:exported="true"
             android:theme="@style/AppTheme" />
-
         <activity android:name=".StoryAddActivity" />
-
-
         <activity
             android:name=".SplashActivity"
             android:exported="true">
