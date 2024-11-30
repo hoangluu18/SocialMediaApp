@@ -154,6 +154,7 @@ public class Profile extends Fragment {
         else {
             editProfileBtn.setVisibility(View.GONE);
             followBtn.setVisibility(View.VISIBLE);
+            logoutBtn.setVisibility(View.GONE);
 
         }
         userRef = FirebaseFirestore.getInstance().collection("Users")

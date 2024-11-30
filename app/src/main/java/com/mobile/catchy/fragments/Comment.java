@@ -1,5 +1,6 @@
 package com.mobile.catchy.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,6 +16,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -38,7 +41,6 @@ public class Comment extends Fragment {
     FirebaseUser user;
     String id, uid;
     CollectionReference reference;
-
     public Comment() {
         // Required empty public constructor
     }
@@ -73,7 +75,6 @@ public class Comment extends Fragment {
     private void clickListener() {
 
         sendBtn.setOnClickListener(v -> {
-
             String comment = commentEt.getText().toString();
 
             if (comment.isEmpty()) {
@@ -81,36 +82,51 @@ public class Comment extends Fragment {
                 return;
             }
 
-
             String commentID = reference.document().getId();
 
-            Map<String, Object> map = new HashMap<>();
-            map.put("uid", user.getUid());
-            map.put("comment", comment);
-            map.put("commentID", commentID);
-            map.put("postID", id);
-
-            map.put("name", user.getDisplayName());
-            map.put("profileImageUrl", user.getPhotoUrl().toString());
-
-            reference.document(commentID)
-                    .set(map)
+            // Truy vấn profileImageUrl trước
+            FirebaseFirestore.getInstance().collection("Users")
+                    .document(user.getUid())
+                    .get()
                     .addOnCompleteListener(task -> {
-
                         if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                String profileImageUrl = document.getString("profileImage");
 
-                            commentEt.setText("");
+                                // Tạo và lưu comment sau khi đã có profileImageUrl
+                                Map<String, Object> map = new HashMap<>();
+                                map.put("uid", user.getUid());
+                                map.put("comment", comment);
+                                map.put("commentID", commentID);
+                                map.put("postID", id);
+                                map.put("name", user.getDisplayName());
+                                map.put("profileImageUrl", profileImageUrl);
+                                int currentCommentCount = list.size();
+                                reference.document(commentID)
+                                        .set(map)
+                                        .addOnCompleteListener(commentTask -> {
+                                            if (commentTask.isSuccessful()) {
+                                                commentEt.setText("");
 
-                        } else {
-
-                            assert  task.getException() != null;
-                            Toast.makeText(getContext(), "Failed to comment:" + task.getException().getMessage(),
-                                    Toast.LENGTH_SHORT).show();
+                                                if(getActivity() != null){
+                                                    Intent intent= new Intent("UPDATE_COMMENT_COUNT");
+                                                    intent.putExtra("postId", id);
+                                                    intent.putExtra("newCommentCount", currentCommentCount + 1);
+                                                    getActivity().sendBroadcast(intent);
+                                                }
+                                            } else {
+                                                assert commentTask.getException() != null;
+                                                Toast.makeText(getContext(),
+                                                        "Failed to comment:" + commentTask.getException().getMessage(),
+                                                        Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            }
+                            //update home adapter
 
                         }
-
                     });
-
         });
 
     }
@@ -146,7 +162,6 @@ public class Comment extends Fragment {
         recyclerView = view.findViewById(R.id.commentRecyclerView);
 
         user = FirebaseAuth.getInstance().getCurrentUser();
-
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         list = new ArrayList<>();

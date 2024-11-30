@@ -202,7 +202,7 @@ public class Home extends Fragment {
     }
 
     private void loadDataFromFirestore() {
-        Toast.makeText(getContext(), "Loading data", Toast.LENGTH_SHORT).show();
+
         final DocumentReference reference = FirebaseFirestore.getInstance().collection("Users")
                 .document(user.getUid());
         final CollectionReference collectionReference = FirebaseFirestore.getInstance().collection("Users");
@@ -305,5 +305,13 @@ public class Home extends Fragment {
         storiesRecyclerView.setAdapter(storiesAdapter);
         FirebaseAuth auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (adapter != null) {
+            adapter.unregisterReceiver();
+        }
     }
 }
