@@ -13,10 +13,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -96,35 +98,37 @@ public class Search extends Fragment {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-
-                reference.orderBy("search").startAt(query).endAt(query + "\uf8ff")
-                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-
-                                if (task.isSuccessful()) {
-
-                                    list.clear();
-                                    for (DocumentSnapshot snapshot : task.getResult()) {
-                                        if (!snapshot.exists())
-                                            return;
-
-                                        Users users = snapshot.toObject(Users.class);
+                if (!query.isEmpty()) {
+                    // Tìm kiếm khi người dùng nhấn submit
+                    query = query.trim().toLowerCase();
+                    String finalQuery = query;
+                    reference.orderBy("search")
+                            .get()
+                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                list.clear();
+                                for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
+                                    Users users = snapshot.toObject(Users.class);
+                                    if (users != null &&
+                                            users.getName().toLowerCase().contains(finalQuery) &&
+                                            !users.getUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                                         list.add(users);
-
                                     }
-                                    adapter.notifyDataSetChanged();
-
                                 }
-
-                            }
-                        });
-                return false;
+                                adapter.notifyDataSetChanged();
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(getContext(),
+                                        "Lỗi tìm kiếm: " + e.getMessage(),
+                                        Toast.LENGTH_SHORT).show();
+                            });
+                }
+                return true; // Đổi thành true để ẩn bàn phím sau khi submit
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if(newText.isEmpty()){
+                // Chỉ load lại data khi text rỗng
+                if (newText.isEmpty()) {
                     loadUserData();
                 }
                 return false;
@@ -132,27 +136,28 @@ public class Search extends Fragment {
         });
     }
 
+
+
     private void loadUserData() {
-
-        reference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    return;
-                }
-                if(value == null) {
-                    return;
-                }
-                list.clear();
-
-                for(QueryDocumentSnapshot snapshot : value) {
-                    Users users = snapshot.toObject(Users.class);
-                    list.add(users);
-
-                }
-                adapter.notifyDataSetChanged();
-            }
-        });
+        // Load toàn bộ users (trừ current user)
+        reference.get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    list.clear();
+                    for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
+                        Users users = snapshot.toObject(Users.class);
+                        // Kiểm tra không phải current user
+                        if (users != null &&
+                                !users.getUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                            list.add(users);
+                        }
+                    }
+                    adapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(),
+                            "Lỗi tải danh sách: " + e.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void init(View view) {

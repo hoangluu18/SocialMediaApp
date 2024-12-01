@@ -2,15 +2,15 @@ package com.mobile.catchy.fragments;
 
 
 
-import static android.app.Activity.RESULT_OK;
+
 
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.Intent;
+
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
+
 import android.os.Build;
 import android.os.Bundle;
 
@@ -23,27 +23,24 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Environment;
-import android.os.Handler;
+
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
+
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.canhub.cropper.CropImage;
+
 import com.canhub.cropper.CropImageContract;
 import com.canhub.cropper.CropImageContractOptions;
 import com.canhub.cropper.CropImageOptions;
 import com.canhub.cropper.CropImageView;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -51,7 +48,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
+
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -61,12 +58,12 @@ import com.mobile.catchy.R;
 import com.mobile.catchy.adapter.GalleryAdapter;
 import com.mobile.catchy.model.GalleryImages;
 
-import java.io.File;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+
 
 
 public class Add extends Fragment {
@@ -83,10 +80,6 @@ public class Add extends Fragment {
     String imageUrl;
     private boolean permissionsChecked = false;
 
-//    private boolean isLoading = false;
-//    private int currentPage = 0; // Bắt đầu từ trang 0
-//    private int pageSize = 20; // Số lượng ảnh mỗi lần tải
-
     public Add() {
         // Required empty public constructor
 
@@ -96,7 +89,6 @@ public class Add extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        //Toast.makeText(getContext(), "Dang o onCreateView\n", Toast.LENGTH_SHORT).show();
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_add, container, false);
     }
@@ -216,7 +208,6 @@ public class Add extends Fragment {
 
     @Override
     public void onResume(){
-        //Toast.makeText(getContext(), "Tren dau resume\n", Toast.LENGTH_SHORT).show();
         super.onResume();
         if(!permissionsChecked) {
 
@@ -235,24 +226,9 @@ public class Add extends Fragment {
                             .withListener(new MultiplePermissionsListener() {
                                 @Override
                                 public void onPermissionsChecked(MultiplePermissionsReport report) {
-//                                if (report.areAllPermissionsGranted()) {
-//                                    File file = new File(Environment.getExternalStorageDirectory().toString() + "/DCIM/Camera");
-//
-//                                    if(file.exists()){
-//                                        File[] files = file.listFiles();
-//                                        assert files != null;
-//                                        for (File file1 : files){
-//                                            if(file1.getAbsolutePath().endsWith(".jpg") || file1.getAbsolutePath().endsWith(".png")){
-//                                                list.add(new GalleryImages(Uri.fromFile(file1)));
-//                                                adapter.notifyDataSetChanged();
-//                                            }
-//                                        }
-//                                    }
-//                                }
                                     if (list.isEmpty()) {
                                         loadImagesFromMediaStore();
                                     }
-                                    //Toast.makeText(getContext(), "Ben trong run()\n", Toast.LENGTH_SHORT).show();
                                     permissionsChecked = true;
                                 }
 
@@ -283,77 +259,7 @@ public class Add extends Fragment {
 
         });
 
-//    private void loadImagesFromMediaStoreAsync() {
-//        new  AsyncTask<Void, Void, List<GalleryImages>>() {
-//            @Override
-//            protected List<GalleryImages> doInBackground(Void... voids) {
-//                List<GalleryImages> imageList = new ArrayList<>();
-//                assert getContext() != null;
-//                ContentResolver contentResolver = getContext().getContentResolver();
-//
-////                ContentResolver contentResolver = requireContext().getContentResolver();
-//                Uri collection;
-//
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//                    collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
-//                } else {
-//                    collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-//                }
-//
-//                String[] projection = new String[]{
-//                        MediaStore.Images.Media._ID,
-//                        MediaStore.Images.Media.DISPLAY_NAME,
-//                        MediaStore.Images.Media.RELATIVE_PATH // Dùng để lọc đường dẫn tương đối
-//                };
-//
-//                // Lọc ảnh trong thư mục DCIM/Camera
-////                String selection = "(" + MediaStore.Images.Media.MIME_TYPE + "=? OR " +
-////                        MediaStore.Images.Media.MIME_TYPE + "=?) AND " +
-////                        MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
-////                String[] selectionArgs = new String[]{"image/jpeg", "image/png", "%AndroidNhat2%"};
-//
-//                String selection = MediaStore.Images.Media.MIME_TYPE + "=? OR " +
-//                        MediaStore.Images.Media.MIME_TYPE + "=?";
-//                String[] selectionArgs = new String[]{"image/jpeg", "image/png"};
-////                String selection = "(" + MediaStore.Images.Media.MIME_TYPE + "=? OR " +
-////                        MediaStore.Images.Media.MIME_TYPE + "=?) AND " +
-////                        MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
-////                String[] selectionArgs = new String[]{"image/jpeg", "image/png", "%DCIM/Camera%"};
-//
-//                try (Cursor cursor = contentResolver.query(
-//                        collection,
-//                        projection,
-//                        selection,
-//                        selectionArgs,
-//                        MediaStore.Images.Media.DATE_ADDED + " DESC")) {
-//                    if (cursor != null) {
-//                        int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
-//
-//                        while (cursor.moveToNext()) {
-//                            long id = cursor.getLong(idColumn);
-//                            Uri contentUri = ContentUris.withAppendedId(
-//                                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-//                            imageList.add(new GalleryImages(contentUri));
-//                        }
-//                    }
-//                }
-//
-//                return imageList;
-//            }
-//
-//            @Override
-//            protected void onPostExecute(List<GalleryImages> result) {
-//                // Cập nhật danh sách ảnh trên UI thread
-//                list.clear();
-//                list.addAll(result);
-//                adapter.notifyDataSetChanged();
-//            }
-//        }.execute();
-//        //Toast.makeText(getContext(), "Loaded\n", Toast.LENGTH_SHORT).show();
-//    }
-
     private void loadImagesFromMediaStore() {
-        //Toast.makeText(getContext(), "ben trong loadImage\n", Toast.LENGTH_SHORT).show();
         // Truy vấn MediaStore để lấy ảnh
         ContentResolver contentResolver = requireContext().getContentResolver();
         Uri collection;
@@ -371,18 +277,11 @@ public class Add extends Fragment {
                 MediaStore.Images.Media.DISPLAY_NAME
         };
 
-        // Điều kiện truy vấn (chỉ lấy ảnh JPEG)
-//        String selection = MediaStore.Images.Media.MIME_TYPE + "=?";
-//        String[] selectionArgs = new String[] {"image/jpeg"};
 
         String selection = "(" + MediaStore.Images.Media.MIME_TYPE + "=? OR " +
                 MediaStore.Images.Media.MIME_TYPE + "=?) AND " +
                 MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
         String[] selectionArgs = new String[]{"image/jpeg", "image/png", "%AndroidNhat2%"};
-
-//        String selection = MediaStore.Images.Media.MIME_TYPE + "=? OR " +
-//                MediaStore.Images.Media.MIME_TYPE + "=?";
-//        String[] selectionArgs = new String[]{"image/jpeg", "image/png"};
 
         try (Cursor cursor = contentResolver.query(
                 collection,
@@ -404,6 +303,5 @@ public class Add extends Fragment {
                 }
             }
         }
-        //Toast.makeText(getContext(), "Loaded hehe\n", Toast.LENGTH_SHORT).show();
     }
 }

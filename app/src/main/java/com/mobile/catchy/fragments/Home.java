@@ -101,7 +101,7 @@ public class Home extends Fragment {
                 reference.update(map);
 
             }
-
+//KHONG SU DUNG CAI NAY NUA
 //            @Override
 //            public void setCommentCount(TextView textView) {
 //
@@ -120,89 +120,8 @@ public class Home extends Fragment {
         });
     }
 
-
-    //cai nay bi loi
-    private void loadDataFromFirestore2() {
-        Toast.makeText(getContext(), "Loading data", Toast.LENGTH_SHORT).show();
-        final DocumentReference reference = FirebaseFirestore.getInstance().collection("Users")
-                .document(user.getUid());
-        final CollectionReference collectionReference = FirebaseFirestore.getInstance().collection("Users");
-
-        reference.addSnapshotListener((value, error) -> {
-            if (error != null) {
-                Log.d("Error: ", error.getMessage());
-                return;
-            }
-
-            if (value == null) {
-                return;
-            }
-
-            List<String> uidList = (List<String>) value.get("following");
-            if (uidList == null || uidList.isEmpty()) {
-                return;
-            }
-            list.clear();
-            collectionReference.whereIn("uid", uidList)
-                    .addSnapshotListener((value1, error1) -> {
-                        if (error1 != null) {
-                            Log.d("Error: ", error.getMessage());
-                        }
-                        if (value1 == null) {
-                            Log.e("Error: ", "No data found");
-                            return;
-                        }
-
-                        for (QueryDocumentSnapshot snapshot : value1) {
-
-                            snapshot.getReference().collection("Post Images")
-                                    .addSnapshotListener((value11, error11) -> {
-                                        if (error11 != null) {
-                                            Log.d("Error: ", error11.getMessage());
-                                        }
-                                        if (value11 == null) {
-                                            Log.e("Error: ", "No data found");
-                                            return;
-                                        }
-
-
-                                        //list.clear();
-                                        for (final QueryDocumentSnapshot snapshot1 : value11) {
-                                            if (!snapshot1.exists()) {
-                                                Log.e("Error: ", "No data found");
-                                                return;
-                                            }
-                                            HomeModel model = snapshot1.toObject(HomeModel.class);
-
-                                            snapshot1.getReference().collection("Comments").get()
-                                                    .addOnCompleteListener(task -> {
-                                                        if (task.isSuccessful() && task.getResult() != null) {
-                                                            int count = task.getResult().size();
-                                                            model.setCommentCount(count); // Cập nhật số lượng bình luận cho từng model
-
-                                                        } else {
-                                                            Log.e("FirestoreError", "Failed to get comments", task.getException());
-                                                            model.setCommentCount(0); // Đặt giá trị bằng 0 nếu có lỗi
-                                                        }
-                                                        //list.add(model);
-
-                                                    });
-                                            list.add(model);
-                                        }
-
-                                    });
-
-
-                        }
-
-                    });
-            loadStories(uidList);
-        });
-        adapter.notifyDataSetChanged(); // Thông báo thay đổi cho adapter
-    }
-
     private void loadDataFromFirestore() {
-        Toast.makeText(getContext(), "Loading data", Toast.LENGTH_SHORT).show();
+
         final DocumentReference reference = FirebaseFirestore.getInstance().collection("Users")
                 .document(user.getUid());
         final CollectionReference collectionReference = FirebaseFirestore.getInstance().collection("Users");
@@ -245,10 +164,14 @@ public class Home extends Fragment {
                                                             list.add(model);
                                                             adapter.notifyDataSetChanged();
                                                         }
+                                                        //list.add(model);
+
                                                     });
                                         }
+
                                     });
                         }
+
                     });
 
             loadStories(uidList);
@@ -305,5 +228,13 @@ public class Home extends Fragment {
         storiesRecyclerView.setAdapter(storiesAdapter);
         FirebaseAuth auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (adapter != null) {
+            adapter.unregisterReceiver();
+        }
     }
 }
