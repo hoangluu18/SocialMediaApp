@@ -10,6 +10,7 @@ import static com.mobile.catchy.utils.Constants.PREF_URL;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -26,6 +27,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,15 +54,19 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.marsad.stylishdialogs.StylishAlertDialog;
 import com.mobile.catchy.R;
+import com.mobile.catchy.chat.ChatActivity;
 import com.mobile.catchy.model.PostImageModel;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -69,6 +75,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +100,7 @@ public class Profile extends Fragment {
     DocumentReference userRef, myRef;
     int count;
     private ImageButton logoutBtn;
-
+    String oppositeUID;
     // ActivityResultLauncher để cắt ảnh
     private final ActivityResultLauncher<CropImageContractOptions> cropImageLauncher =
             registerForActivityResult(new CropImageContract(), result -> {
@@ -273,11 +281,61 @@ public class Profile extends Fragment {
             cropImageLauncher.launch(options);
         });
 
+        startChatBtn.setOnClickListener(v -> {
+            StartChat();
+        });
+
+
         logoutBtn.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
             requireActivity().finish();
         });
 
+
+    }
+
+    void StartChat() {
+        StylishAlertDialog alertDialog = new StylishAlertDialog(getContext(), StylishAlertDialog.PROGRESS);
+        alertDialog.setTitleText("Starting chat ...");
+        alertDialog.setCancelable(false);
+        alertDialog.show();
+        CollectionReference reference = FirebaseFirestore.getInstance().collection("Messages");
+        List<String> list = new ArrayList<>();
+        list.add(0, user.getUid());
+        list.add(1, userUID);
+        String pushID =  reference.document().getId();
+        Map<String,  Object> map = new HashMap<>();
+        map.put("id", pushID);
+        map.put("lastMessage", "HI");
+        map.put("time", FieldValue.serverTimestamp());
+        map.put("uid", list);
+
+        reference.document(pushID).update(map);
+        CollectionReference messageRef = FirebaseFirestore.getInstance().collection("Messages").document(pushID).collection("Messages");
+        String messageID = messageRef.document().getId();
+
+
+        Map<String, Object> messageMap = new HashMap<>();
+        messageMap.put("id", messageID);
+        messageMap.put("message", "Hi");
+        messageMap.put("senderID", user.getUid());
+        messageMap.put("time", FieldValue.serverTimestamp());
+        messageRef.document(messageID).set(messageMap);
+
+        new Handler().postDelayed(() -> {
+
+            alertDialog.dismissWithAnimation();
+
+            Intent intent = new Intent(getActivity(), ChatActivity.class);
+            intent.putExtra("uid", userUID);
+            intent.putExtra("id", pushID);
+            startActivity(intent);
+
+        }, 3000);
+
+    }
+
+    private void queryChat() {
 
     }
 
@@ -337,10 +395,13 @@ public class Profile extends Fragment {
                 if (followersList.contains(user.getUid())) {
                     followBtn.setText("Unfollow");
                     isFollowed = true;
+                    startChatBtn.setVisibility(View.VISIBLE);
+
+
                 } else {
                     isFollowed = false;
                     followBtn.setText("Follow");
-
+                    startChatBtn.setVisibility(View.GONE);
                 }
             }
 

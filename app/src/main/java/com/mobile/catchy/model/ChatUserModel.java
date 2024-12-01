@@ -1,48 +1,57 @@
 package com.mobile.catchy.model;
 
+import com.google.firebase.firestore.ServerTimestamp;
+
+import java.util.Date;
+import java.util.List;
+
 public class ChatUserModel {
-    private String id, userid, name, imageURL;
+    private String id, lastMessage;
+    private List<String> uid;
 
     public ChatUserModel() {
 
     }
+    @ServerTimestamp
+    private Date time;
 
-    public ChatUserModel(String id, String userid, String name, String imageURL) {
+
+    public ChatUserModel(String id, String lastMessage, List<String> uid, Date time) {
         this.id = id;
-        this.userid = userid;
-        this.name = name;
-        this.imageURL = imageURL;
+        this.lastMessage = lastMessage;
+        this.uid = uid;
+        this.time = time;
     }
 
     public String getId() {
         return id;
     }
 
-    public String getUserid() {
-        return userid;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getImageURL() {
-        return imageURL;
-    }
-
     public void setId(String id) {
         this.id = id;
     }
 
-    public void setUserid(String userid) {
-        this.userid = userid;
+    public String getLastMessage() {
+        return lastMessage;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setLastMessage(String lastMessage) {
+        this.lastMessage = lastMessage;
     }
 
-    public void setImageURL(String imageURL) {
-        this.imageURL = imageURL;
+    public List<String> getUid() {
+        return uid;
+    }
+
+    public void setUid(List<String> uid) {
+        this.uid = uid;
+    }
+
+    public Date getTime() {
+        return time;
+    }
+
+    public void setTime(Date time) {
+        this.time = time;
     }
 }

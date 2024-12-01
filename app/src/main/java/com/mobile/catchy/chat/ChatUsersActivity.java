@@ -1,5 +1,6 @@
 package com.mobile.catchy.chat;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -68,6 +69,27 @@ public class ChatUsersActivity extends AppCompatActivity {
             }
 
             adapter.notifyDataSetChanged();
+
+        });
+    }
+
+    void clickListener() {
+        adapter.OnStartChat(new ChatUserAdapter.OnStartChat() {
+            @Override
+            public void clicked(int position, List<String> uids, String chatID) {
+                String oppositeUID;
+                if(uids.get(0).equalsIgnoreCase(user.getUid())) {
+                    oppositeUID = uids.get(0);
+                } else {
+                    oppositeUID = uids.get(1);
+                }
+
+                Intent intent = new Intent(ChatUsersActivity.this, ChatActivity.class);
+                intent.putExtra("uid", oppositeUID);
+                intent.putExtra("id", chatID);
+                startActivity(intent);
+            }
+
 
         });
     }
