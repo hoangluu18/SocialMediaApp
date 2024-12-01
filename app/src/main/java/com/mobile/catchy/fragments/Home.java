@@ -164,10 +164,14 @@ public class Home extends Fragment {
                                                             list.add(model);
                                                             adapter.notifyDataSetChanged();
                                                         }
+                                                        //list.add(model);
+
                                                     });
                                         }
+
                                     });
                         }
+
                     });
 
             loadStories(uidList);
