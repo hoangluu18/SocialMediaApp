@@ -123,7 +123,6 @@ public class Comment extends Fragment {
                                             }
                                         });
                             }
-                            //update home adapter
 
                         }
                     });
