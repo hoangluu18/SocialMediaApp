@@ -62,10 +62,14 @@ public class ChatUsersActivity extends AppCompatActivity {
             if(value.isEmpty()) {
                 return;
             }
+
+
             list.clear();
             for(QueryDocumentSnapshot snapshot : value) {
-                ChatUserModel model = snapshot.toObject(ChatUserModel.class);
-                list.add(model);
+                if(snapshot.exists()) {
+                    ChatUserModel model = snapshot.toObject(ChatUserModel.class);
+                    list.add(model);
+                }
             }
 
             adapter.notifyDataSetChanged();

@@ -51,6 +51,8 @@ import com.canhub.cropper.CropImageOptions;
 import com.canhub.cropper.CropImageView;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -62,6 +64,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.marsad.stylishdialogs.StylishAlertDialog;
@@ -230,6 +233,7 @@ public class Profile extends Fragment {
                 });
 
             }else{
+                createNotification();
 
                 followersList.add(user.getUid()); //opposite user
 
@@ -282,7 +286,7 @@ public class Profile extends Fragment {
         });
 
         startChatBtn.setOnClickListener(v -> {
-            StartChat();
+            queryChat();
         });
 
 
@@ -294,23 +298,34 @@ public class Profile extends Fragment {
 
     }
 
-    void StartChat() {
-        StylishAlertDialog alertDialog = new StylishAlertDialog(getContext(), StylishAlertDialog.PROGRESS);
-        alertDialog.setTitleText("Starting chat ...");
-        alertDialog.setCancelable(false);
-        alertDialog.show();
+    void StartChat(StylishAlertDialog  alertDialog) {
+
         CollectionReference reference = FirebaseFirestore.getInstance().collection("Messages");
+
         List<String> list = new ArrayList<>();
         list.add(0, user.getUid());
         list.add(1, userUID);
         String pushID =  reference.document().getId();
+
+
         Map<String,  Object> map = new HashMap<>();
         map.put("id", pushID);
         map.put("lastMessage", "HI");
         map.put("time", FieldValue.serverTimestamp());
         map.put("uid", list);
 
-        reference.document(pushID).update(map);
+        reference.document(pushID).update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()) {
+
+                } else {
+                    reference.document(pushID).set(map);
+                }
+            }
+        });
+
+
         CollectionReference messageRef = FirebaseFirestore.getInstance().collection("Messages").document(pushID).collection("Messages");
         String messageID = messageRef.document().getId();
 
@@ -320,6 +335,7 @@ public class Profile extends Fragment {
         messageMap.put("message", "Hi");
         messageMap.put("senderID", user.getUid());
         messageMap.put("time", FieldValue.serverTimestamp());
+
         messageRef.document(messageID).set(messageMap);
 
         new Handler().postDelayed(() -> {
@@ -337,6 +353,31 @@ public class Profile extends Fragment {
 
     private void queryChat() {
 
+        StylishAlertDialog alertDialog = new StylishAlertDialog(getContext(), StylishAlertDialog.PROGRESS);
+        alertDialog.setTitleText("Starting chat ...");
+        alertDialog.setCancelable(false);
+        alertDialog.show();
+
+        CollectionReference reference = FirebaseFirestore.getInstance().collection("Messages");
+        reference.whereArrayContains("uid", userUID).get().addOnCompleteListener(task -> {
+            if(task.isSuccessful()) {
+                QuerySnapshot snapshot = task.getResult();
+                if(snapshot.isEmpty()) {
+                    StartChat(alertDialog);
+                }
+                else {
+                    alertDialog.dismissWithAnimation();
+                    for(DocumentSnapshot snapshotChat : snapshot) {
+                        Intent intent = new Intent(getActivity(), ChatActivity.class);
+                        intent.putExtra("uid", userUID);
+                        intent.putExtra("id", snapshotChat.getId());
+                        startActivity(intent);
+                    }
+                }
+            } else {
+                alertDialog.dismissWithAnimation();
+            }
+        });
     }
 
     private void loadBasicData() {
@@ -688,8 +729,17 @@ public class Profile extends Fragment {
                 });
     }
 
-
+    void createNotification() {
+        CollectionReference reference = FirebaseFirestore.getInstance().collection("Notifications");
+        String id = reference.document().getId();
+        Map<String, Object> map = new HashMap<>();
+        map.put("time", FieldValue.serverTimestamp());
+        map.put("notification", user.getDisplayName() + " followed you.");
+        map.put("id", id);
+        map.put("uid", userUID);
+        reference.document(id).set(map);
     }
+}
 
 
 

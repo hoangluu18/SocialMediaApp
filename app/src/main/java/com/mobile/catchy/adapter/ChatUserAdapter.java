@@ -1,6 +1,8 @@
 package com.mobile.catchy.adapter;
 
 import android.app.Activity;
+import android.os.Build;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -20,6 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.mobile.catchy.R;
 import com.mobile.catchy.model.ChatUserModel;
 
+import java.util.Date;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -40,10 +44,12 @@ public class ChatUserAdapter extends RecyclerView.Adapter<ChatUserAdapter.CharUs
         return new CharUserHolder(view);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onBindViewHolder(@NonNull CharUserHolder holder, int position) {
         fetchImageUrl(list.get(position).getUid(), holder);
-        holder.time.setText(list.get(position).getTime().toString());
+        //holder.time.setText(list.get(position).getTime().);
+        holder.time.setText(calculateTime(list.get(position).getTime()));
         holder.lastMessage.setText(list.get(position).getLastMessage());
 
         holder.itemView.setOnClickListener(v->{
@@ -54,6 +60,11 @@ public class ChatUserAdapter extends RecyclerView.Adapter<ChatUserAdapter.CharUs
 //        Glide.with(context.getApplicationContext().load())
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    String calculateTime(Date date) {
+        long millis = date.toInstant().toEpochMilli();
+        return DateUtils.getRelativeTimeSpanString(millis, System.currentTimeMillis(), 60000, DateUtils.FORMAT_ABBREV_TIME).toString();
+    }
     void fetchImageUrl (List<String> uids, CharUserHolder holder ) {
         String oppositeUID;
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -100,7 +111,7 @@ public class ChatUserAdapter extends RecyclerView.Adapter<ChatUserAdapter.CharUs
             count = itemview.findViewById(R.id.messageCountTV);
 
 
-
+            count.setVisibility(View.GONE);
         }
     }
 

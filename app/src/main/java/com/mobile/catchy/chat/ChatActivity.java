@@ -5,8 +5,10 @@ import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -16,10 +18,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
@@ -47,6 +52,8 @@ public class ChatActivity extends AppCompatActivity {
     RecyclerView recyclerView;
 
     ChatAdapter adapter;
+
+    String chatID;
     List<ChatModel> list = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +69,38 @@ public class ChatActivity extends AppCompatActivity {
             if(message.isEmpty()) {
                 return;
             }
-            Map<String, Object> map = new HashMap<>();
+            CollectionReference reference = FirebaseFirestore.getInstance().collection("Messages");
+            String pushID = reference.document().getId();
 
+            Map<String,  Object> map = new HashMap<>();
+
+            map.put("lastMessage", message);
+            map.put("time", FieldValue.serverTimestamp());
+
+
+            reference.document(chatID).update(map);
+
+//            CollectionReference messageRef = FirebaseFirestore.getInstance().collection("Messages").document(pushID).collection("Messages");
+
+            String messageID = reference.document(chatID).collection("Messages").document().getId();
+
+
+            Map<String, Object> messageMap = new HashMap<>();
+            messageMap.put("id", messageID);
+            messageMap.put("message", message);
+            messageMap.put("senderID", user.getUid());
+            messageMap.put("time", FieldValue.serverTimestamp());
+
+            reference.document(chatID).collection("Messages").document(messageID).set(messageMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if(task.isSuccessful()) {
+                        chatET.setText("");
+                    } else {
+                        Toast.makeText(ChatActivity.this, "Something daijoubu janai", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         });
     }
 
@@ -133,7 +170,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     void loadMessages() {
-        String chatID = getIntent().getStringExtra("id");
+        chatID = getIntent().getStringExtra("id");
 
         if(chatID == null) {
             Log.e("Chat","ChatID is null");
