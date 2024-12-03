@@ -2,6 +2,7 @@ package com.mobile.catchy.chat;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
@@ -22,18 +23,19 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.mobile.catchy.R;
 import com.mobile.catchy.adapter.ChatUserAdapter;
+import com.mobile.catchy.model.ChatModel;
 import com.mobile.catchy.model.ChatUserModel;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 public class ChatUsersActivity extends AppCompatActivity {
     ChatUserAdapter adapter;
-
     List<ChatUserModel> list;
     FirebaseUser user;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,17 +47,13 @@ public class ChatUsersActivity extends AppCompatActivity {
         fetchUserData();
         clickListener();
     }
-
     void init() {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
-
         list = new ArrayList<>();
         adapter = new ChatUserAdapter(this, list);
-
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }
-
     void fetchUserData() {
         CollectionReference reference = FirebaseFirestore.getInstance().collection("Messages");
         reference.whereArrayContains("uid", user.getUid()).addSnapshotListener((value, error) -> {
@@ -65,8 +63,6 @@ public class ChatUsersActivity extends AppCompatActivity {
             if(value.isEmpty()) {
                 return;
             }
-
-
             list.clear();
             for(QueryDocumentSnapshot snapshot : value) {
                 if(snapshot.exists()) {
@@ -74,9 +70,19 @@ public class ChatUsersActivity extends AppCompatActivity {
                     list.add(model);
                 }
             }
-
+            if (list == null || list.isEmpty()) {
+                Log.d("ChatUserList", "List is empty or null");
+                return;
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            for (ChatUserModel chatUser : list) {
+                Log.d("ChatUserList", "ID: " + chatUser.getId());
+                Log.d("ChatUserList", "Last Message: " + chatUser.getLastMessage());
+                Log.d("ChatUserList", "UIDs: " + (chatUser.getUid() != null ? chatUser.getUid().toString() : "null"));
+                Log.d("ChatUserList", "Time: " + (chatUser.getTime() != null ? sdf.format(chatUser.getTime()) : "null"));
+                Log.d("ChatUserList", "---------------------------------------");
+            }
             adapter.notifyDataSetChanged();
-
         });
     }
 
@@ -86,18 +92,15 @@ public class ChatUsersActivity extends AppCompatActivity {
             public void clicked(int position, List<String> uids, String chatID) {
                 String oppositeUID;
                 if(uids.get(0).equalsIgnoreCase(user.getUid())) {
-                    oppositeUID = uids.get(0);
-                } else {
                     oppositeUID = uids.get(1);
+                } else {
+                    oppositeUID = uids.get(0);
                 }
-
                 Intent intent = new Intent(ChatUsersActivity.this, ChatActivity.class);
                 intent.putExtra("uid", oppositeUID);
                 intent.putExtra("id", chatID);
                 startActivity(intent);
             }
-
-
         });
     }
 }

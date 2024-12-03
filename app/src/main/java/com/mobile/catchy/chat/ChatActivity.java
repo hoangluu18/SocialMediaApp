@@ -60,17 +60,18 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_chat);
-        init();
 
+        init();
         loadUserData();
         loadMessages();
+
         sendBtn.setOnClickListener(v -> {
             String message = chatET.getText().toString().trim();
             if(message.isEmpty()) {
                 return;
             }
             CollectionReference reference = FirebaseFirestore.getInstance().collection("Messages");
-            String pushID = reference.document().getId();
+            //String pushID = reference.document().getId();
 
             Map<String,  Object> map = new HashMap<>();
 
@@ -97,7 +98,7 @@ public class ChatActivity extends AppCompatActivity {
                     if(task.isSuccessful()) {
                         chatET.setText("");
                     } else {
-                        Toast.makeText(ChatActivity.this, "Something daijoubu janai", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ChatActivity.this, "Something is daijoubu janai", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -120,10 +121,17 @@ public class ChatActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
 
-        list = new ArrayList<>();
-        adapter = new ChatAdapter(this, list);
+
+//        for (ChatModel chat : list) {
+//            Log.d("ChatList", "ID: " + chat.getId());
+//            Log.d("ChatList", "Message: " + chat.getMessage());
+//            Log.d("ChatList", "SenderID: " + chat.getSenderID());
+//            Log.d("ChatList", "Time: " + chat.getTime());
+//        }
+//        adapter = new ChatAdapter(this, list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
+        //recyclerView.setAdapter(adapter);
+        Log.d("ChatList", "Initialization complete");
     }
 
     void loadUserData() {
@@ -132,34 +140,35 @@ public class ChatActivity extends AppCompatActivity {
             Log.e("UserData", "Cannot load");
             return;
         }
+        Log.d("UserData", "oppositeUID: " + oppositeUID);
         FirebaseFirestore.getInstance().collection("Users").document(oppositeUID).addSnapshotListener((value, error) -> {
             if(error!= null) {
                 Log.e("UserData", "Cannot load2");
                 return;
             }
             if (value != null && value.exists()) {
-                Boolean isOnline = value.getBoolean("online");
-                if (isOnline != null) {
-                    status.setText(isOnline ? "Online" : "Offline");
-                }
-                String profileImage = value.getString("profileImage");
-                if (profileImage != null) {
-                    Glide.with(getApplicationContext()).load(profileImage).into(imageView);
-                }
+
                 String userName = value.getString("name");
+                Boolean isOnline = value.getBoolean("online");
+                String profileImage = value.getString("profileImage");
+
                 if (userName != null) {
+                    System.out.println(userName);
                     name.setText(userName);
                 }
-            }
-            Boolean isOnline = value.getBoolean("online");
-            if (isOnline != null) {
-                status.setText(isOnline ? "Online" : "Offline");
-            } else {
-                status.setText("Offline");
+                if (isOnline != null) {
+                    System.out.println(isOnline);
+                    status.setText(isOnline ? "Online" : "Offline");
+                } else {
+                    status.setText("Offline");
+                }
+                if (profileImage != null) {
+                    System.out.println(profileImage);
+                    Glide.with(this).load(profileImage).into(imageView);
+                }
+
             }
 
-            Glide.with(this).load(value.getString("profileImage")).into(imageView);
-            name.setText(value.getString("name"));
         });
     }
 
@@ -171,7 +180,7 @@ public class ChatActivity extends AppCompatActivity {
 
     void loadMessages() {
         chatID = getIntent().getStringExtra("id");
-
+        Log.d("ChatList", "userName: " + chatID);
         if(chatID == null) {
             Log.e("Chat","ChatID is null");
             return;
@@ -191,8 +200,14 @@ public class ChatActivity extends AppCompatActivity {
                     ChatModel model = snapshot.toObject(ChatModel.class);
                     list.add(model);
                 }
+
+
+
                 if(adapter != null) {
                     adapter.notifyDataSetChanged();
+                } else {
+                    adapter = new ChatAdapter(ChatActivity.this, list);
+                    recyclerView.setAdapter(adapter);
                 }
 
             }

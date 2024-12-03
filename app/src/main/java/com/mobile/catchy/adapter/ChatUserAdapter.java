@@ -3,6 +3,7 @@ package com.mobile.catchy.adapter;
 import android.app.Activity;
 import android.os.Build;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,6 +50,7 @@ public class ChatUserAdapter extends RecyclerView.Adapter<ChatUserAdapter.CharUs
     public void onBindViewHolder(@NonNull CharUserHolder holder, int position) {
 
         fetchImageUrl(list.get(position).getUid(), holder);
+
         //holder.time.setText(list.get(position).getTime().);
         holder.time.setText(calculateTime(list.get(position).getTime()));
         holder.lastMessage.setText(list.get(position).getLastMessage());
@@ -69,22 +71,24 @@ public class ChatUserAdapter extends RecyclerView.Adapter<ChatUserAdapter.CharUs
     void fetchImageUrl (List<String> uids, CharUserHolder holder ) {
         String oppositeUID;
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        assert user != null;
         if(uids.get(0).equalsIgnoreCase(user.getUid())) {
             oppositeUID = uids.get(1);
         } else {
             oppositeUID = uids.get(0);
         }
-        FirebaseFirestore.getInstance().collection("User").document(oppositeUID)
-                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()) {
-                            DocumentSnapshot snapshot = task.getResult();
-                            Glide.with(context.getApplicationContext()).load(snapshot.getString("profileImage")).into(holder.imageView);
-                            holder.name.setText(snapshot.getString("name"));
-                        } else {
-                            Toast.makeText(context, "Error: " +  task.getException().getMessage(), Toast.LENGTH_SHORT);
-                        }
+        FirebaseFirestore.getInstance().collection("Users").document(oppositeUID)
+                .get().addOnCompleteListener(task -> {
+                    if(task.isSuccessful()) {
+                        DocumentSnapshot snapshot = task.getResult();
+//                        Log.d("ChatList", "oppositeUID: " + oppositeUID);
+//
+//                        Log.d("ChatList", "NAME: " + snapshot.getString("name"));
+//                        Log.d("ChatList", "ImageURL: " + snapshot.getString("profileImage"));
+                        Glide.with(context.getApplicationContext()).load(snapshot.getString("profileImage")).into(holder.imageView);
+                        holder.name.setText(snapshot.getString("name"));
+                    } else {
+                        Toast.makeText(context, "Error: " +  task.getException().getMessage(), Toast.LENGTH_SHORT);
                     }
                 });
     }
