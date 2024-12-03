@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_add));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_heart));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.baseline_person_24));
-
+// KHONG SU DUNG NUA
 //        SharedPreferences preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
 //        String directory = preferences.getString(PREF_DIRECTORY, "");
 //

@@ -1,7 +1,10 @@
 package com.mobile.catchy.adapter;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
@@ -37,10 +40,54 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
     Activity context;
     OnPressed onPressed;
 
+    private BroadcastReceiver commentUpdateReceiver;
+    private boolean isReceiverRegistered = false;
+
     public HomeAdapter(List<HomeModel> list, Activity context) {
         this.list = list;
         this.context = context;
+
+        // Khởi tạo BroadcastReceiver
+        commentUpdateReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if ("UPDATE_COMMENT_COUNT".equals(intent.getAction())) {
+                    String postId = intent.getStringExtra("postId");
+                    int newCommentCount = intent.getIntExtra("newCommentCount", 0);
+
+                    // Cập nhật UI
+                    for (int i = 0; i < list.size(); i++) {
+                        if (list.get(i).getId().equals(postId)) {
+                            list.get(i).setCommentCount(newCommentCount);
+                            notifyItemChanged(i);
+                            break;
+                        }
+                    }
+                }
+            }
+        };
+
+        // Đăng ký receiver
+        registerReceiver();
     }
+
+    private void registerReceiver() {
+        if (!isReceiverRegistered && context != null) {
+            context.registerReceiver(commentUpdateReceiver, new IntentFilter("UPDATE_COMMENT_COUNT"));
+            isReceiverRegistered = true;
+        }
+    }
+    public void unregisterReceiver() {
+        if (isReceiverRegistered && context != null && commentUpdateReceiver != null) {
+            try {
+                context.unregisterReceiver(commentUpdateReceiver);
+                isReceiverRegistered = false;
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     @NonNull
     @Override
@@ -102,7 +149,12 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
 
         if (commentCount == 0) {
             holder.commentTV.setVisibility(View.GONE);
-        } else {
+        }
+        else if(commentCount == 1){
+            holder.commentTV.setVisibility(View.VISIBLE);
+            holder.commentTV.setText("See all + " + commentCount + " comment");
+        }
+        else {
             holder.commentTV.setVisibility(View.VISIBLE);
             holder.commentTV.setText("See all + " + commentCount + " comments");
         }

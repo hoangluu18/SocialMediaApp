@@ -165,6 +165,7 @@ public class Profile extends Fragment {
         else {
             editProfileBtn.setVisibility(View.GONE);
             followBtn.setVisibility(View.VISIBLE);
+            logoutBtn.setVisibility(View.GONE);
 
         }
         userRef = FirebaseFirestore.getInstance().collection("Users")
@@ -381,7 +382,6 @@ public class Profile extends Fragment {
     }
 
     private void loadBasicData() {
-        //Toast.makeText(getContext(), "dau loadbasic", Toast.LENGTH_SHORT).show();
 
         userRef.addSnapshotListener((value, error) -> {
             if (error != null) {
@@ -421,6 +421,7 @@ public class Profile extends Fragment {
 
                                 @Override
                                 public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+ //  KHONG SU DUNG NUA
 //                                    Bitmap bitmap = ((BitmapDrawable) resource).getBitmap();
 //                                    //test
 //                                    storeProfileImage(bitmap, myProfileURL);
@@ -524,7 +525,6 @@ public class Profile extends Fragment {
     }
 
     private void loadPostImages() {
-        //Toast.makeText(getContext(), "dau loadpost", Toast.LENGTH_SHORT).show();
         if(userUID == null)
             return;
         DocumentReference reference = FirebaseFirestore.getInstance().collection("Users")
@@ -585,56 +585,6 @@ public class Profile extends Fragment {
     }
 
 
-
-//    private void uploadImage(Uri uri) {
-//        final StorageReference reference = FirebaseStorage.getInstance().getReference()
-//                .child("Profile Images")
-//                .child(user.getUid())  // Thêm userId để tạo thư mục riêng cho mỗi người dùng
-//                .child("profile_image.jpg");  // Tên tệp ảnh có thể là cố định hoặc duy nhất tùy ý
-//
-//        reference.putFile(uri)
-//                .addOnCompleteListener(task -> {
-//
-//                    if (task.isSuccessful()) {
-//
-//                        reference.getDownloadUrl()
-//                                .addOnSuccessListener(uri1 -> {
-//                                    String imageURL = uri1.toString();
-//
-//                                    UserProfileChangeRequest.Builder request = new UserProfileChangeRequest.Builder();
-//                                    request.setPhotoUri(uri1);
-//
-//                                    user.updateProfile(request.build());
-//
-//                                    Map<String, Object> map = new HashMap<>();
-//                                    map.put("profileImage", imageURL);
-//
-//                                    FirebaseFirestore.getInstance().collection("Users")
-//                                            .document(user.getUid())
-//                                            .update(map).addOnCompleteListener(task1 -> {
-//
-//                                                if (task1.isSuccessful())
-//                                                    Toast.makeText(getContext(),
-//                                                            "Updated Successful", Toast.LENGTH_SHORT).show();
-//                                                else {
-//                                                    assert task1.getException() != null;
-//                                                    Toast.makeText(getContext(),
-//                                                            "Error: " + task1.getException().getMessage(),
-//                                                            Toast.LENGTH_SHORT).show();
-//                                                }
-//                                            });
-//
-//                                });
-//
-//
-//                    } else {
-//                        assert task.getException() != null;
-//                        Toast.makeText(getContext(), "Error: " + task.getException().getMessage(),
-//                                Toast.LENGTH_SHORT).show();
-//                    }
-//
-//                });
-//    }
 
     private void uploadImage(Uri uri) {
         final StorageReference reference = FirebaseStorage.getInstance().getReference()

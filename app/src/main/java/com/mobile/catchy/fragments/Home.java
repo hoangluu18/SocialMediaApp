@@ -30,6 +30,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.ServerTimestamp;
 import com.mobile.catchy.R;
 import com.mobile.catchy.adapter.HomeAdapter;
 import com.mobile.catchy.adapter.StoriesAdapter;
@@ -38,6 +39,7 @@ import com.mobile.catchy.model.HomeModel;
 import com.mobile.catchy.model.StoriesModel;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -338,5 +340,12 @@ public class Home extends Fragment {
         storiesRecyclerView.setAdapter(storiesAdapter);
         FirebaseAuth auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
+    }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (adapter != null) {
+            adapter.unregisterReceiver();
+        }
     }
 }
