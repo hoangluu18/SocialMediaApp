@@ -122,6 +122,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
     public interface OnPressed {
         void onLiked(int position, String id,String uid, List<String> likeList, boolean isChecked);
 
+        void setCommentCount(TextView textView);
+
 //        void setCommentCount(TextView textView);
     }
 

@@ -1,12 +1,14 @@
 package com.mobile.catchy.fragments;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -28,15 +30,14 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.ServerTimestamp;
 import com.mobile.catchy.R;
 import com.mobile.catchy.adapter.HomeAdapter;
 import com.mobile.catchy.adapter.StoriesAdapter;
+import com.mobile.catchy.chat.ChatUsersActivity;
 import com.mobile.catchy.model.HomeModel;
 import com.mobile.catchy.model.StoriesModel;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,6 +102,31 @@ public class Home extends Fragment {
                 reference.update(map);
 
             }
+            @Override
+            public void setCommentCount(final TextView textView) {
+
+                commentCount.observe((LifecycleOwner) activity, integer -> {
+
+                    assert commentCount.getValue() != null;
+
+                    if (commentCount.getValue() == 0) {
+                        textView.setVisibility(View.GONE);
+                    } else
+                        textView.setVisibility(View.VISIBLE);
+
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("See all")
+                            .append(commentCount.getValue())
+                            .append(" comments");
+
+                    textView.setText(builder);
+//                    textView.setText("See all " + commentCount.getValue() + " comments");
+
+                });
+
+            }
+
+
 
 //            @Override
 //            public void setCommentCount(TextView textView) {
@@ -116,6 +142,13 @@ public class Home extends Fragment {
 ////                });
 //
 //            }
+
+        });
+
+        view.findViewById(R.id.sendBtn).setOnClickListener(v -> {
+
+            Intent intent = new Intent(getActivity(), ChatUsersActivity.class);
+            startActivity(intent);
 
         });
     }

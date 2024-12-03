@@ -47,6 +47,7 @@ public class ChatUserAdapter extends RecyclerView.Adapter<ChatUserAdapter.CharUs
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onBindViewHolder(@NonNull CharUserHolder holder, int position) {
+
         fetchImageUrl(list.get(position).getUid(), holder);
         //holder.time.setText(list.get(position).getTime().);
         holder.time.setText(calculateTime(list.get(position).getTime()));
@@ -69,9 +70,9 @@ public class ChatUserAdapter extends RecyclerView.Adapter<ChatUserAdapter.CharUs
         String oppositeUID;
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if(uids.get(0).equalsIgnoreCase(user.getUid())) {
-            oppositeUID = uids.get(0);
-        } else {
             oppositeUID = uids.get(1);
+        } else {
+            oppositeUID = uids.get(0);
         }
         FirebaseFirestore.getInstance().collection("User").document(oppositeUID)
                 .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
