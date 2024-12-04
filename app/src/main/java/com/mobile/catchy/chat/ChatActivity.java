@@ -1,5 +1,6 @@
 package com.mobile.catchy.chat;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
@@ -30,6 +31,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.mobile.catchy.MainActivity;
 import com.mobile.catchy.R;
 import com.mobile.catchy.adapter.ChatAdapter;
 import com.mobile.catchy.model.ChatModel;
@@ -213,5 +215,15 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra("TAB_INDEX", 0); // Giả sử 0 là vị trí của tab Home
+        startActivity(intent);
+        finish();
     }
 }

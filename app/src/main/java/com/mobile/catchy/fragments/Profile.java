@@ -68,6 +68,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.marsad.stylishdialogs.StylishAlertDialog;
+import com.mobile.catchy.MainActivity;
 import com.mobile.catchy.R;
 import com.mobile.catchy.chat.ChatActivity;
 import com.mobile.catchy.model.PostImageModel;
@@ -138,6 +139,11 @@ public class Profile extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         init(view);
+
+        if (userUID == null) {
+            userUID = user.getUid();
+            isMyProfile = true;
+        }
 
         myRef = FirebaseFirestore.getInstance().collection("Users")
                 .document(user.getUid());
@@ -421,10 +427,6 @@ public class Profile extends Fragment {
 
                                 @Override
                                 public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
- //  KHONG SU DUNG NUA
-//                                    Bitmap bitmap = ((BitmapDrawable) resource).getBitmap();
-//                                    //test
-//                                    storeProfileImage(bitmap, myProfileURL);
                                     return false;
                                 }
                             })
@@ -526,7 +528,10 @@ public class Profile extends Fragment {
 
     private void loadPostImages() {
         if(userUID == null)
+        {
+            Log.e("Profile", "userUID is null in loadPostImages");
             return;
+        }
         DocumentReference reference = FirebaseFirestore.getInstance().collection("Users")
                 .document(userUID);
 
@@ -557,9 +562,7 @@ public class Profile extends Fragment {
              public int getItemCount() {
                 return super.getItemCount();
             }
-
         };
-
     }
 
 
@@ -576,12 +579,16 @@ public class Profile extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        adapter.startListening();
+        if (adapter != null) {
+            adapter.startListening();
+        }
     }
     @Override
     public void onStop() {
         super.onStop();
-        adapter.stopListening();
+        if (adapter != null) {
+            adapter.stopListening();
+        }
     }
 
 
