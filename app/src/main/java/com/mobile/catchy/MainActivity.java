@@ -3,12 +3,14 @@ package com.mobile.catchy;
 import static com.mobile.catchy.utils.Constants.PREF_DIRECTORY;
 import static com.mobile.catchy.utils.Constants.PREF_NAME;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
@@ -18,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.mobile.catchy.adapter.ViewPagerAdapter;
+import com.mobile.catchy.fragments.Profile;
 import com.mobile.catchy.fragments.Search;
 
 import java.io.File;
@@ -188,5 +191,14 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
         map.put("online", status);
         FirebaseFirestore.getInstance().collection("Users").document(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .update(map);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        int tabIndex = intent.getIntExtra("TAB_INDEX", -1);
+        if (tabIndex != -1) {
+            viewPager.setCurrentItem(tabIndex);
+        }
     }
 }
