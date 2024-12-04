@@ -149,7 +149,7 @@ public class ChatActivity extends AppCompatActivity {
             if (value != null && value.exists()) {
 
                 String userName = value.getString("name");
-                Boolean isOnline = value.getBoolean("online");
+                String isOnline = value.getString("status");
                 String profileImage = value.getString("profileImage");
 
                 if (userName != null) {
@@ -158,7 +158,7 @@ public class ChatActivity extends AppCompatActivity {
                 }
                 if (isOnline != null) {
                     System.out.println(isOnline);
-                    status.setText(isOnline ? "Online" : "Offline");
+                    status.setText(isOnline);
                 } else {
                     status.setText("Offline");
                 }
