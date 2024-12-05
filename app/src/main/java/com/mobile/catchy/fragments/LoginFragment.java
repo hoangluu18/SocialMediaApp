@@ -130,6 +130,9 @@ public class LoginFragment extends Fragment {
                               Toast.makeText(getActivity(), "Please verify your email", Toast.LENGTH_SHORT).show();
                                 progressBar.setVisibility(View.GONE);
                           }
+                          FirebaseFirestore db = FirebaseFirestore.getInstance();
+                          db.collection("Users").document(user.getUid()).update("status", "Online");
+
                           sendUserToMainActivity();
 
                     } else {
