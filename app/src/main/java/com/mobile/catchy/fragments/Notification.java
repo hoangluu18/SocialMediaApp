@@ -8,9 +8,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -70,7 +72,9 @@ public class Notification extends Fragment {
 
     void loadNotification() {
         CollectionReference reference =  FirebaseFirestore.getInstance().collection("Notifications");
-        reference.whereEqualTo("uid", user.getUid()).orderBy("time", Query.Direction.DESCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
+        reference.whereEqualTo("uid", user.getUid())
+                //.orderBy("time", Query.Direction.DESCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if(error != null) {
@@ -87,4 +91,6 @@ public class Notification extends Fragment {
             }
         });
     }
+
+
 }
