@@ -1,5 +1,6 @@
 package com.mobile.catchy.fragments;
 
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -8,11 +9,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -28,6 +27,7 @@ import com.mobile.catchy.adapter.NotificationAdapter;
 import com.mobile.catchy.model.NotificationModel;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -87,6 +87,7 @@ public class Notification extends Fragment {
                    NotificationModel model = snapshot.toObject(NotificationModel.class);
                     list.add(model);
                 }
+                list.sort((o1, o2) -> o2.getTime().compareTo(o1.getTime()));
                 adapter.notifyDataSetChanged();
             }
         });
