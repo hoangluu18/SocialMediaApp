@@ -1,5 +1,6 @@
 package com.mobile.catchy.fragments;
 
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -26,6 +27,7 @@ import com.mobile.catchy.adapter.NotificationAdapter;
 import com.mobile.catchy.model.NotificationModel;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -69,22 +71,26 @@ public class Notification extends Fragment {
 
 
     void loadNotification() {
-        CollectionReference reference =  FirebaseFirestore.getInstance().collection("Notifications");
-        reference.whereEqualTo("uid", user.getUid()).orderBy("time", Query.Direction.DESCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if(error != null) {
-                    return;
-                }
-                if(value.isEmpty()) {
-                    return;
-                }
-                for(QueryDocumentSnapshot snapshot : value) {
-                   NotificationModel model = snapshot.toObject(NotificationModel.class);
-                    list.add(model);
-                }
-                adapter.notifyDataSetChanged();
-            }
-        });
+        CollectionReference reference = FirebaseFirestore.getInstance().collection("Notifications");
+
+        reference.whereEqualTo("uid", user.getUid())
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if (error != null || value == null) {
+                            return;
+                        }
+
+                        list.clear();
+                        for (QueryDocumentSnapshot snapshot : value) {
+                            NotificationModel model = snapshot.toObject(NotificationModel.class);
+                            list.add(model);
+                        }
+                        list.sort((o1, o2) -> o2.getTime().compareTo(o1.getTime()));
+                        adapter.notifyDataSetChanged();
+                    }
+                });
     }
+
+
 }
