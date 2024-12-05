@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +18,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.mobile.catchy.adapter.ViewPagerAdapter;
@@ -177,20 +179,34 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
     @Override
     protected void onResume() {
         super.onResume();
-        updateStatus(true);
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            updateStatus(true);
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        updateStatus(false);
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            updateStatus(false);
+        }
     }
 
     void updateStatus(boolean status) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("online", status);
-        FirebaseFirestore.getInstance().collection("Users").document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .update(map);
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("online", status);
+            FirebaseFirestore.getInstance()
+                    .collection("Users")
+                    .document(currentUser.getUid())
+                    .update(map)
+                    .addOnFailureListener(e ->
+                            Log.e("MainActivity", "Error updating status: " + e.getMessage())
+                    );
+        }
     }
 
     @Override
