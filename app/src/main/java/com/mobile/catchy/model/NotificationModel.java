@@ -10,15 +10,17 @@ public class NotificationModel {
 
     @ServerTimestamp
     Date time;
+    String followerId;
 
     public NotificationModel() {
     }
 
 
-    public NotificationModel(String id, String notification, Date time) {
+    public NotificationModel(String id, String notification, Date time, String followerId) {
         this.id = id;
         this.notification = notification;
         this.time = time;
+        this.followerId = followerId;
     }
 
     public String getId() {
@@ -44,4 +46,14 @@ public class NotificationModel {
     public void setTime(Date time) {
         this.time = time;
     }
+
+    public String getFollowerId() {
+        return followerId;
+    }
+
+    public void setFollowerId(String followerId) {
+        this.followerId = followerId;
+    }
+
+
 }

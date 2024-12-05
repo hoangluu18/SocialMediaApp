@@ -62,7 +62,6 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     static class NotificationHolder extends RecyclerView.ViewHolder {
 
         TextView time, notification;
-
         public NotificationHolder(@NonNull View itemView) {
             super(itemView);
 
