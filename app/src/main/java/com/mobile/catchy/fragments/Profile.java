@@ -298,12 +298,30 @@ public class Profile extends Fragment {
 
 
         logoutBtn.setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut();
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            DocumentReference userStatusRef = db.collection("Users").document(user.getUid());
-            userStatusRef.update("status", "Offline");
-            requireActivity().finish();
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser != null) {
+                String uid = currentUser.getUid();
+                // Cập nhật trạng thái trước khi đăng xuất
+                FirebaseFirestore.getInstance()
+                        .collection("Users")
+                        .document(uid)
+                        .update("status", "Offline")
+                        .addOnCompleteListener(task -> {
+                            // Đăng xuất sau khi cập nhật trạng thái
+                            FirebaseAuth.getInstance().signOut();
+                            requireActivity().finish();
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e("Logout", "Error updating status: " + e.getMessage());
+                            // Vẫn đăng xuất nếu cập nhật thất bại
+                            FirebaseAuth.getInstance().signOut();
+                            requireActivity().finish();
+                        });
+            } else {
+                // Nếu user đã null, chỉ cần đăng xuất
+                FirebaseAuth.getInstance().signOut();
+                requireActivity().finish();
+            }
         });
 
 
