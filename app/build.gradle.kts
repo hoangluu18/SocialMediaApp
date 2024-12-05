@@ -67,7 +67,7 @@ dependencies {
     // Also add the dependency for the Google Play services library and specify its version
     implementation("com.google.android.gms:play-services-auth:18.1.0")
 
-    implementation("com.google.android.exoplayer:exoplayer:2.15.8")
+    implementation("com.google.android.exoplayer:exoplayer:2.19.0")
 
     // FirebaseUI for Cloud Firestore
     implementation ("com.firebaseui:firebase-ui-firestore:8.0.2")

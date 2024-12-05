@@ -299,6 +299,10 @@ public class Profile extends Fragment {
 
         logoutBtn.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            DocumentReference userStatusRef = db.collection("Users").document(user.getUid());
+            userStatusRef.update("status", "Offline");
             requireActivity().finish();
         });
 

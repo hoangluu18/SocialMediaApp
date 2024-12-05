@@ -19,6 +19,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.mobile.catchy.adapter.ViewPagerAdapter;
@@ -156,7 +157,23 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
             }
         });
     }
+    @Override
+    public void onStart(){
+        super.onStart();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference userStatusRef = db.collection("Users").document(user.getUid());
+        userStatusRef.update("status", "Online");
+    }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference userStatusRef = db.collection("Users").document(user.getUid());
+        userStatusRef.update("status", "Offline");
+    }
 
 
     @Override
