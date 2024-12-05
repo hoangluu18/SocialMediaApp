@@ -311,35 +311,84 @@ public class Profile extends Fragment {
 
     void StartChat(StylishAlertDialog  alertDialog) {
 
+//        CollectionReference reference = FirebaseFirestore.getInstance().collection("Messages");
+//
+//        List<String> list = new ArrayList<>();
+//        list.add(0, user.getUid());
+//        list.add(1, userUID);
+//        String pushID =  reference.document().getId();
+//
+//
+//        Map<String,  Object> map = new HashMap<>();
+//        map.put("id", pushID);
+//        map.put("lastMessage", "HI");
+//        map.put("time", FieldValue.serverTimestamp());
+//        map.put("uid", list);
+//
+//        reference.document(pushID).update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+//            @Override
+//            public void onComplete(@NonNull Task<Void> task) {
+//                if(task.isSuccessful()) {
+//
+//                } else {
+//                    reference.document(pushID).set(map);
+//                }
+//            }
+//        });
+//
+//
+//        CollectionReference messageRef = FirebaseFirestore.getInstance().collection("Messages").document(pushID).collection("Messages");
+//        String messageID = messageRef.document().getId();
+//
+//
+//        Map<String, Object> messageMap = new HashMap<>();
+//        messageMap.put("id", messageID);
+//        messageMap.put("message", "Hi");
+//        messageMap.put("senderID", user.getUid());
+//        messageMap.put("time", FieldValue.serverTimestamp());
+//
+//        messageRef.document(messageID).set(messageMap);
+//
+//        new Handler().postDelayed(() -> {
+//
+//            alertDialog.dismissWithAnimation();
+//
+//            Intent intent = new Intent(getActivity(), ChatActivity.class);
+//            intent.putExtra("uid", userUID);
+//            intent.putExtra("id", pushID);
+//            startActivity(intent);
+//
+//        }, 3000);
         CollectionReference reference = FirebaseFirestore.getInstance().collection("Messages");
 
         List<String> list = new ArrayList<>();
+
         list.add(0, user.getUid());
         list.add(1, userUID);
-        String pushID =  reference.document().getId();
 
+        String pushID = reference.document().getId();
 
-        Map<String,  Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         map.put("id", pushID);
-        map.put("lastMessage", "HI");
+        map.put("lastMessage", "Hi");
         map.put("time", FieldValue.serverTimestamp());
         map.put("uid", list);
 
-        reference.document(pushID).update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()) {
-
-                } else {
-                    reference.document(pushID).set(map);
-                }
+        reference.document(pushID).update(map).addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                reference.document(pushID).set(map);
             }
         });
 
+        //todo - ---- - -- - -
+        //Message
 
-        CollectionReference messageRef = FirebaseFirestore.getInstance().collection("Messages").document(pushID).collection("Messages");
+        CollectionReference messageRef = FirebaseFirestore.getInstance()
+                .collection("Messages")
+                .document(pushID)
+                .collection("Messages");
+
         String messageID = messageRef.document().getId();
-
 
         Map<String, Object> messageMap = new HashMap<>();
         messageMap.put("id", messageID);
@@ -359,36 +408,111 @@ public class Profile extends Fragment {
             startActivity(intent);
 
         }, 3000);
-
     }
 
     private void queryChat() {
 
+//        StylishAlertDialog alertDialog = new StylishAlertDialog(getContext(), StylishAlertDialog.PROGRESS);
+//        alertDialog.setTitleText("Starting chat ...");
+//        alertDialog.setCancelable(false);
+//        alertDialog.show();
+//
+//        CollectionReference reference = FirebaseFirestore.getInstance().collection("Messages");
+//        reference.whereArrayContains("uid", userUID).get().addOnCompleteListener(task -> {
+//            if(task.isSuccessful()) {
+//                QuerySnapshot snapshot = task.getResult();
+//                if(snapshot.isEmpty()) {
+//                    StartChat(alertDialog);
+//                }
+//                else {
+//                    alertDialog.dismissWithAnimation();
+//                    for(DocumentSnapshot snapshotChat : snapshot) {
+//                        Intent intent = new Intent(getActivity(), ChatActivity.class);
+//                        intent.putExtra("uid", userUID);
+//                        intent.putExtra("id", snapshotChat.getId());
+//                        startActivity(intent);
+//                    }
+//                }
+//            } else {
+//                alertDialog.dismissWithAnimation();
+//            }
+//        });
+
+        assert getContext() != null;
         StylishAlertDialog alertDialog = new StylishAlertDialog(getContext(), StylishAlertDialog.PROGRESS);
-        alertDialog.setTitleText("Starting chat ...");
-        alertDialog.setCancelable(false);
+        alertDialog.setTitleText("Starting Chat...");
+        alertDialog.setCancellable(false);
         alertDialog.show();
 
         CollectionReference reference = FirebaseFirestore.getInstance().collection("Messages");
-        reference.whereArrayContains("uid", userUID).get().addOnCompleteListener(task -> {
-            if(task.isSuccessful()) {
-                QuerySnapshot snapshot = task.getResult();
-                if(snapshot.isEmpty()) {
-                    StartChat(alertDialog);
-                }
-                else {
-                    alertDialog.dismissWithAnimation();
-                    for(DocumentSnapshot snapshotChat : snapshot) {
-                        Intent intent = new Intent(getActivity(), ChatActivity.class);
-                        intent.putExtra("uid", userUID);
-                        intent.putExtra("id", snapshotChat.getId());
-                        startActivity(intent);
+        Log.d("USERID_userID: ", userUID);
+        Log.d("USERID_user.getUID: ", user.getUid());
+        Log.d("USERID_reference: ", reference.document().getId());
+        reference.whereArrayContains("uid", userUID)
+                .get().addOnCompleteListener(task -> {
+
+                    if (task.isSuccessful()) {
+
+                        QuerySnapshot snapshot = task.getResult();
+
+                        // Danh sách kết quả sau khi lọc cả 2 UID
+                        List<DocumentSnapshot> validChats = new ArrayList<>();
+
+                        // Lọc kết quả đảm bảo cả userUID và user.getUid() đều nằm trong mảng uid
+                        for (DocumentSnapshot doc : snapshot) {
+                            List<String> uidList = (List<String>) doc.get("uid");
+                            if (uidList != null && uidList.contains(user.getUid())) {
+                                validChats.add(doc);
+                            }
+                        }
+
+                        if (validChats.isEmpty()) {
+                            // Nếu không tìm thấy cuộc trò chuyện nào, tạo cuộc trò chuyện mới
+                            StartChat(alertDialog);
+                        } else {
+                            // Nếu đã tìm thấy, lấy chatId và chuyển sang màn hình ChatActivity
+                            alertDialog.dismissWithAnimation();
+                            for (DocumentSnapshot validChat : validChats) {
+                                Intent intent = new Intent(getActivity(), ChatActivity.class);
+                                intent.putExtra("uid", userUID);
+                                intent.putExtra("id", validChat.getId()); // Đặt chatId
+                                startActivity(intent);
+                            }
+                        }
+
+                    } else {
+                        // Xử lý lỗi nếu truy vấn thất bại
+                        alertDialog.dismissWithAnimation();
                     }
-                }
-            } else {
-                alertDialog.dismissWithAnimation();
-            }
-        });
+
+                });
+//        reference.whereArrayContains("uid", userUID)
+//                .get().addOnCompleteListener(task -> {
+//
+//                    if (task.isSuccessful()) {
+//
+//                        QuerySnapshot snapshot = task.getResult();
+//
+//                        if (snapshot.isEmpty()) {
+//                            StartChat(alertDialog);
+//                        } else {
+//                            //get chatId and pass
+//                            alertDialog.dismissWithAnimation();
+//                            for (DocumentSnapshot snapshotChat : snapshot) {
+//
+//                                Intent intent = new Intent(getActivity(), ChatActivity.class);
+//                                intent.putExtra("uid", userUID);
+//                                intent.putExtra("id", snapshotChat.getId()); //return doc id
+//                                startActivity(intent);
+//                            }
+//
+//
+//                        }
+//
+//                    } else
+//                        alertDialog.dismissWithAnimation();
+//
+//                });
     }
 
     private void loadBasicData() {
