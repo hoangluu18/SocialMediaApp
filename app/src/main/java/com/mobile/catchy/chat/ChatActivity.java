@@ -73,7 +73,6 @@ public class ChatActivity extends AppCompatActivity {
                 return;
             }
             CollectionReference reference = FirebaseFirestore.getInstance().collection("Messages");
-            //String pushID = reference.document().getId();
 
             Map<String,  Object> map = new HashMap<>();
 
@@ -206,7 +205,10 @@ public class ChatActivity extends AppCompatActivity {
                     list.add(model);
                 }
 
-
+                for (ChatModel chatUser : list) {
+                    Log.d("MessageList", "Sender: " + chatUser.getSenderID());
+                    Log.d("MessageList", "Message: " + chatUser.getMessage());
+                }
 
                 if(adapter != null) {
                     adapter.notifyDataSetChanged();
