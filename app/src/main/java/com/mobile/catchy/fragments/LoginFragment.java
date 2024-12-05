@@ -230,12 +230,10 @@ public class LoginFragment extends Fragment {
                 followingList = (List<Object>) documentSnapshot.get("following");
                 if(documentSnapshot.get("profileImage") != null)
                     profileImage = (String) documentSnapshot.get("profileImage");
-                Toast.makeText(getContext(), "da ton tai", Toast.LENGTH_SHORT).show();
             } else {
                 followersList = new ArrayList<>(); // Nếu không tồn tại, tạo danh sách rỗng
                 followingList = new ArrayList<>();
                 profileImage = String.valueOf(account.getPhotoUrl());
-                Toast.makeText(getContext(), "chua ton tai", Toast.LENGTH_SHORT).show();
             }
 
             // Tạo map với dữ liệu mới, không thay đổi followers và following nếu đã có

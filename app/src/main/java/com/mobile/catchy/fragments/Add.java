@@ -44,6 +44,7 @@ import com.canhub.cropper.CropImageView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -58,6 +59,8 @@ import com.mobile.catchy.R;
 import com.mobile.catchy.adapter.GalleryAdapter;
 import com.mobile.catchy.model.GalleryImages;
 
+
+import org.w3c.dom.Document;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,9 +80,9 @@ public class Add extends Fragment {
     private FirebaseUser user;
     private Dialog dialog;
     Uri imageUri;
-    String imageUrl;
+    String profileImageUrl;
     private boolean permissionsChecked = false;
-
+    private DocumentReference documentReference;
     public Add() {
         // Required empty public constructor
 
@@ -140,7 +143,7 @@ public class Add extends Fragment {
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()){
                             storageReference.getDownloadUrl().addOnSuccessListener(uri -> {
-                                uploadData(uri.toString());
+                                uploadData(uri.toString(), profileImageUrl);
                             });
                         }
                         else {
@@ -151,7 +154,7 @@ public class Add extends Fragment {
         });
     }
 
-    private void uploadData(String imageUrl) {
+    private void uploadData(String imageUrl, String profileImage) {
         CollectionReference reference = FirebaseFirestore.getInstance().collection("Users").document(user.getUid()).collection("Post Images");
 
         String id = reference.document().getId();
@@ -167,7 +170,7 @@ public class Add extends Fragment {
         map.put("timestamp", FieldValue.serverTimestamp());
 
         map.put("name", user.getDisplayName());
-        map.put("profileImage", user.getPhotoUrl());
+        map.put("profileImage", profileImage);
         map.put("likes", list);
         //map.put("comments",list);
         map.put("uid", user.getUid());
@@ -199,6 +202,15 @@ public class Add extends Fragment {
         nextBtn = view.findViewById(R.id.nextBtn);
 
         user = FirebaseAuth.getInstance().getCurrentUser();
+        documentReference = FirebaseFirestore.getInstance().collection("Users").document(user.getUid());
+
+        documentReference.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                profileImageUrl = task.getResult().getString("profileImage");
+            }
+        });
+
+
 
         dialog = new Dialog(getContext());
         dialog.setContentView(R.layout.loading_dialog);
