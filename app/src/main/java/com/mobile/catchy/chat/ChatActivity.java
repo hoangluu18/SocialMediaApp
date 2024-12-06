@@ -165,7 +165,10 @@ public class ChatActivity extends AppCompatActivity {
                 }
                 if (profileImage != null) {
                     System.out.println(profileImage);
-                    Glide.with(this).load(profileImage).into(imageView);
+                    Glide.with(this)
+                            .load(profileImage)
+                            .placeholder(R.drawable.ic_person)
+                            .into(imageView);
                 }
 
             }

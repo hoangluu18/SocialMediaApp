@@ -298,12 +298,30 @@ public class Profile extends Fragment {
 
 
         logoutBtn.setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut();
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            DocumentReference userStatusRef = db.collection("Users").document(user.getUid());
-            userStatusRef.update("status", "Offline");
-            requireActivity().finish();
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser != null) {
+                String uid = currentUser.getUid();
+                // Cập nhật trạng thái trước khi đăng xuất
+                FirebaseFirestore.getInstance()
+                        .collection("Users")
+                        .document(uid)
+                        .update("status", "Offline")
+                        .addOnCompleteListener(task -> {
+                            // Đăng xuất sau khi cập nhật trạng thái
+                            FirebaseAuth.getInstance().signOut();
+                            requireActivity().finish();
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e("Logout", "Error updating status: " + e.getMessage());
+                            // Vẫn đăng xuất nếu cập nhật thất bại
+                            FirebaseAuth.getInstance().signOut();
+                            requireActivity().finish();
+                        });
+            } else {
+                // Nếu user đã null, chỉ cần đăng xuất
+                FirebaseAuth.getInstance().signOut();
+                requireActivity().finish();
+            }
         });
 
 
@@ -803,8 +821,7 @@ public class Profile extends Fragment {
                                     });
                         }
 
-                        // Hiển thị thông báo hoàn tất
-                        Toast.makeText(getContext(), "Profile image updated successfully in all posts.", Toast.LENGTH_SHORT).show();
+
                     } else {
                         // Lỗi khi lấy bài đăng
                         Toast.makeText(getContext(),
@@ -812,7 +829,57 @@ public class Profile extends Fragment {
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
+
+        updateCommentProfileImage(newProfileImageUrl);
     }
+
+    private void updateCommentProfileImage(String newProfileImageUrl) {
+        Map<String, Object> updateMap = new HashMap<>();
+        updateMap.put("profileImageUrl", newProfileImageUrl);
+
+        FirebaseFirestore.getInstance().collection("Users")
+                .whereNotEqualTo("uid", user.getUid())  // Lấy tất cả users khác user hiện tại
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Duyệt qua từng user
+                        for (DocumentSnapshot userDoc : task.getResult()) {
+                            // Truy cập collection Post Images của user đó
+                            userDoc.getReference().collection("Post Images")
+                                    .get()
+                                    .addOnCompleteListener(postTask -> {
+                                        if (postTask.isSuccessful()) {
+                                            // Duyệt qua từng post
+                                            for (DocumentSnapshot postDoc : postTask.getResult()) {
+                                                // Truy cập collection Comments của post đó
+                                                postDoc.getReference().collection("Comments")
+                                                        .whereEqualTo("uid", user.getUid())  // Lọc comments của user hiện tại
+                                                        .get()
+                                                        .addOnCompleteListener(commentTask -> {
+                                                            if (commentTask.isSuccessful()) {
+                                                                // Cập nhật từng comment
+                                                                for (DocumentSnapshot commentDoc : commentTask.getResult()) {
+                                                                    commentDoc.getReference().update(updateMap)
+                                                                            .addOnSuccessListener(aVoid ->
+                                                                                    Log.d("ProfileUpdate", "Comment updated in post: " + postDoc.getId()))
+                                                                            .addOnFailureListener(e ->
+                                                                                    Log.e("ProfileUpdate", "Error updating comment: " + e.getMessage()));
+                                                                }
+                                                            }
+                                                        });
+                                            }
+                                        }
+                                    });
+                        }
+                    } else {
+                        Toast.makeText(getContext(), "Error getting users: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+
+
+
 
     void createNotification() {
         CollectionReference reference = FirebaseFirestore.getInstance().collection("Notifications");
@@ -822,6 +889,7 @@ public class Profile extends Fragment {
         map.put("notification", user.getDisplayName() + " followed you.");
         map.put("id", id);
         map.put("uid", userUID);
+        map.put("followerId", user.getUid());
         reference.document(id).set(map);
     }
 }

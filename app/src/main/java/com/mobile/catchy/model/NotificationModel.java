@@ -10,18 +10,20 @@ public class NotificationModel {
     private String notification;
     private String followerId;  // Thêm trường followerId
     @ServerTimestamp
-    private Date time;
+    Date time;
+    String followerId;
 
     // Constructor mặc định (bắt buộc để Firestore ánh xạ)
     public NotificationModel() {
     }
 
-    // Constructor đầy đủ
-    public NotificationModel(String id, String notification, String followerId, Date time) {
+
+    public NotificationModel(String id, String notification, Date time, String followerId) {
         this.id = id;
         this.notification = notification;
         this.followerId = followerId;
         this.time = time;
+        this.followerId = followerId;
     }
 
     // Getter và Setter cho các thuộc tính
@@ -56,4 +58,14 @@ public class NotificationModel {
     public void setTime(Date time) {
         this.time = time;
     }
+
+    public String getFollowerId() {
+        return followerId;
+    }
+
+    public void setFollowerId(String followerId) {
+        this.followerId = followerId;
+    }
+
+
 }

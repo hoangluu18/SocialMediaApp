@@ -160,19 +160,29 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
     @Override
     public void onStart(){
         super.onStart();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference userStatusRef = db.collection("Users").document(user.getUid());
-        userStatusRef.update("status", "Online");
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            // Cập nhật trạng thái online
+            FirebaseFirestore.getInstance()
+                    .collection("Users")
+                    .document(currentUser.getUid())
+                    .update("status", "Online");
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference userStatusRef = db.collection("Users").document(user.getUid());
-        userStatusRef.update("status", "Offline");
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            // Cập nhật trạng thái offline
+            FirebaseFirestore.getInstance()
+                    .collection("Users")
+                    .document(currentUser.getUid())
+                    .update("status", "Offline")
+                    .addOnFailureListener(e ->
+                            Log.e("MainActivity", "Error updating status: " + e.getMessage()));
+        }
     }
 
 
