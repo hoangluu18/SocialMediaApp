@@ -6,12 +6,14 @@ import java.util.Date;
 
 public class NotificationModel {
 
-    String id, notification;
-
+    private String id;
+    private String notification;
+    private String followerId;  // Thêm trường followerId
     @ServerTimestamp
     Date time;
     String followerId;
 
+    // Constructor mặc định (bắt buộc để Firestore ánh xạ)
     public NotificationModel() {
     }
 
@@ -19,10 +21,12 @@ public class NotificationModel {
     public NotificationModel(String id, String notification, Date time, String followerId) {
         this.id = id;
         this.notification = notification;
+        this.followerId = followerId;
         this.time = time;
         this.followerId = followerId;
     }
 
+    // Getter và Setter cho các thuộc tính
     public String getId() {
         return id;
     }
@@ -37,6 +41,14 @@ public class NotificationModel {
 
     public void setNotification(String notification) {
         this.notification = notification;
+    }
+
+    public String getFollowerId() {
+        return followerId;
+    }
+
+    public void setFollowerId(String followerId) {
+        this.followerId = followerId;
     }
 
     public Date getTime() {

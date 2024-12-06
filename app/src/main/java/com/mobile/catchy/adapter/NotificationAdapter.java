@@ -6,6 +6,7 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,11 +14,14 @@ import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.bumptech.glide.Glide;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.mobile.catchy.R;
 import com.mobile.catchy.model.NotificationModel;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationHolder> {
 
@@ -34,18 +38,45 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @Override
     public NotificationHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.notification_items, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.notification_item, parent, false);
         return new NotificationHolder(view);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onBindViewHolder(@NonNull NotificationHolder holder, int position) {
+        NotificationModel model = list.get(position);
 
-        holder.notification.setText(list.get(position).getNotification());
-        holder.time.setText(calculateTime(list.get(position).getTime()));
+        holder.notification.setText(model.getNotification());
+        holder.time.setText(calculateTime(model.getTime()));
 
+        FirebaseFirestore.getInstance().collection("Users")
+                .document(model.getFollowerId())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String imageUrl = documentSnapshot.getString("profileImage");
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            Glide.with(context).load(imageUrl).into(holder.imageView);
+                        }
+                    }
+                });
     }
+
+
+    static class NotificationHolder extends RecyclerView.ViewHolder {
+        TextView time, notification;
+        ImageView imageView;
+
+        public NotificationHolder(@NonNull View itemView) {
+            super(itemView);
+
+            imageView = itemView.findViewById(R.id.imageView);
+            time = itemView.findViewById(R.id.timeTv);
+            notification = itemView.findViewById(R.id.notification);
+        }
+    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     String calculateTime(Date date) {
@@ -58,17 +89,4 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     public int getItemCount() {
         return (list != null) ? list.size() : 0;
     }
-
-    static class NotificationHolder extends RecyclerView.ViewHolder {
-
-        TextView time, notification;
-        public NotificationHolder(@NonNull View itemView) {
-            super(itemView);
-
-            time = itemView.findViewById(R.id.timeTv);
-            notification = itemView.findViewById(R.id.notification);
-
-        }
-    }
-
 }
