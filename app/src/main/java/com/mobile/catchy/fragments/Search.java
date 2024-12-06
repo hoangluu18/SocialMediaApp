@@ -98,18 +98,23 @@ public class Search extends Fragment {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                if (!query.isEmpty()) {
-                    // Tìm kiếm khi người dùng nhấn submit
-                    query = query.trim().toLowerCase();
-                    String finalQuery = query;
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (!newText.isEmpty()) {
+                    String query = newText.trim().toLowerCase();
+                    // Tìm kiếm từ Firestore với indexes
                     reference.orderBy("search")
+                            .limit(10)
                             .get()
                             .addOnSuccessListener(queryDocumentSnapshots -> {
                                 list.clear();
                                 for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
                                     Users users = snapshot.toObject(Users.class);
                                     if (users != null &&
-                                            users.getName().toLowerCase().contains(finalQuery) &&
+                                            users.getName().toLowerCase().contains(query) &&
                                             !users.getUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                                         list.add(users);
                                     }
@@ -121,17 +126,10 @@ public class Search extends Fragment {
                                         "Lỗi tìm kiếm: " + e.getMessage(),
                                         Toast.LENGTH_SHORT).show();
                             });
-                }
-                return true; // Đổi thành true để ẩn bàn phím sau khi submit
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                // Chỉ load lại data khi text rỗng
-                if (newText.isEmpty()) {
+                } else {
                     loadUserData();
                 }
-                return false;
+                return true;
             }
         });
     }
