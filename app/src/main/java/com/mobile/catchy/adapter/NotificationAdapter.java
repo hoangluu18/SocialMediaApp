@@ -21,6 +21,7 @@ import com.mobile.catchy.model.NotificationModel;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationHolder> {
 
@@ -37,7 +38,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @Override
     public NotificationHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.notification_items, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.notification_item, parent, false);
         return new NotificationHolder(view);
     }
 
@@ -54,7 +55,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        String imageUrl = documentSnapshot.getString("profileImageUrl");
+                        String imageUrl = documentSnapshot.getString("profileImage");
                         if (imageUrl != null && !imageUrl.isEmpty()) {
                             Glide.with(context).load(imageUrl).into(holder.imageView);
                         }
