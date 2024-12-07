@@ -7,8 +7,7 @@
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/imageView"
         android:layout_width="48dp"
-        android:layout_height="48dp"
-        app:civ_border_width="3dp" />
+        android:layout_height="48dp" />
 
     <TextView
         android:id="@+id/notification"
