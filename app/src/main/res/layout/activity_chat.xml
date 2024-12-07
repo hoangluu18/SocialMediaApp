@@ -6,13 +6,13 @@
     android:layout_height="match_parent"
     tools:context=".chat.ChatActivity">
 
+  <!-- Top Layout -->
   <RelativeLayout
       android:layout_marginTop="12dp"
       android:id="@+id/topLayout"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:padding="8dp">
-
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profileImage"
@@ -28,7 +28,6 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="40dp"
         android:layout_toEndOf="@id/profileImage"
         android:orientation="vertical">
 
@@ -49,20 +48,21 @@
           android:textColor="@color/colorGreen"
           android:textStyle="bold" />
 
-
     </LinearLayout>
 
   </RelativeLayout>
 
+  <!-- RecyclerView for chat messages -->
   <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/recyclerView"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
+      android:layout_height="0dp"
       android:layout_above="@id/chatLayout"
       android:layout_below="@id/topLayout"
-      android:layout_margin="8dp" />
+      android:layout_margin="8dp"
+      android:layout_weight="1" />
 
-
+  <!-- Chat Input Layout -->
   <RelativeLayout
       android:id="@+id/chatLayout"
       android:layout_width="match_parent"
@@ -93,7 +93,6 @@
         android:padding="8dp"
         android:src="@drawable/ic_send_white"
         tools:ignore="UnusedAttribute" />
-
 
   </RelativeLayout>
 
