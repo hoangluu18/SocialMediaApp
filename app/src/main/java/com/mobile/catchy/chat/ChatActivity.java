@@ -165,7 +165,7 @@ public class ChatActivity extends AppCompatActivity {
                 }
                 if (profileImage != null) {
                     System.out.println(profileImage);
-                    Glide.with(this)
+                    Glide.with(getApplicationContext())
                             .load(profileImage)
                             .placeholder(R.drawable.ic_person)
                             .into(imageView);
@@ -179,7 +179,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
+        
     }
 
     void loadMessages() {
