@@ -21,6 +21,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
@@ -300,7 +301,9 @@ public class Add extends Fragment {
                 selection,
                 selectionArgs,
                 null)) {
+
             if (cursor != null) {
+
                 int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
 
                 while (cursor.moveToNext()) {
