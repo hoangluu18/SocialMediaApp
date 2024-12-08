@@ -203,7 +203,6 @@ public class Add extends Fragment {
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         documentReference = FirebaseFirestore.getInstance().collection("Users").document(user.getUid());
-
         documentReference.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 profileImageUrl = task.getResult().getString("profileImage");
@@ -293,13 +292,15 @@ public class Add extends Fragment {
         String selection = "(" + MediaStore.Images.Media.MIME_TYPE + "=? OR " +
                 MediaStore.Images.Media.MIME_TYPE + "=?) AND " +
                 MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
-        String[] selectionArgs = new String[]{"image/jpeg", "image/png", "%AndroidNhat2%"};
+        String[] selectionArgs = new String[]{"image/jpeg", "image/png"};//, "%AndroidNhat2%"};
 
         try (Cursor cursor = contentResolver.query(
                 collection,
                 projection,
-                selection,
-                selectionArgs,
+//                selection,
+//                selectionArgs,
+                null,
+                null,
                 null)) {
             if (cursor != null) {
                 int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
