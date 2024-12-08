@@ -95,13 +95,6 @@ public class ChatUsersActivity extends AppCompatActivity {
                 return;
             }
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-            for (ChatUserModel chatUser : list) {
-                Log.d("ChatUserList", "ID: " + chatUser.getId());
-                Log.d("ChatUserList", "Last Message: " + chatUser.getLastMessage());
-                Log.d("ChatUserList", "UIDs: " + (chatUser.getUid() != null ? chatUser.getUid().toString() : "null"));
-                Log.d("ChatUserList", "Time: " + (chatUser.getTime() != null ? sdf.format(chatUser.getTime()) : "null"));
-                Log.d("ChatUserList", "---------------------------------------");
-            }
             adapter.notifyDataSetChanged();
         });
     }
@@ -151,9 +144,6 @@ public class ChatUsersActivity extends AppCompatActivity {
                                 boolean check = true;
                                 list.clear();
                                 list.addAll(tmpList);
-                                for (ChatUserModel test : list) {
-                                    Log.d("AUID", "AUID: " + test.getUid());
-                                }
                                 Iterator<ChatUserModel> iterator = list.iterator();
                                 while (iterator.hasNext()) {
                                     check = true;
@@ -171,7 +161,6 @@ public class ChatUsersActivity extends AppCompatActivity {
                                 adapter.notifyDataSetChanged();
                             })
                             .addOnFailureListener(e -> {
-                                // Xử lý khi có lỗi xảy ra
                             });
                 } else {
                     fetchUserData();
