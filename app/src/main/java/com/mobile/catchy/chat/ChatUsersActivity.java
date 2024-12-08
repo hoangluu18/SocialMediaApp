@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class ChatUsersActivity extends AppCompatActivity {
     ChatUserAdapter adapter;
@@ -87,6 +88,7 @@ public class ChatUsersActivity extends AppCompatActivity {
                     list.add(model);
                 }
             }
+            tmpList.clear();
             tmpList.addAll(list);
             if (list == null || list.isEmpty()) {
                 Log.d("ChatUserList", "List is empty or null");
@@ -137,8 +139,7 @@ public class ChatUsersActivity extends AppCompatActivity {
                     reference.orderBy("search")
                             .get()
                             .addOnSuccessListener(queryDocumentSnapshots -> {
-                                if (uidList != null)
-                                    uidList.clear();
+                                uidList.clear();
                                 for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
                                     Users users = snapshot.toObject(Users.class);
                                     if (users != null &&
@@ -148,9 +149,11 @@ public class ChatUsersActivity extends AppCompatActivity {
                                     }
                                 }
                                 boolean check = true;
-                                if (!list.isEmpty())
-                                    list.clear();
+                                list.clear();
                                 list.addAll(tmpList);
+                                for (ChatUserModel test : list) {
+                                    Log.d("AUID", "AUID: " + test.getUid());
+                                }
                                 Iterator<ChatUserModel> iterator = list.iterator();
                                 while (iterator.hasNext()) {
                                     check = true;
