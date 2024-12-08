@@ -21,6 +21,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
@@ -81,7 +82,9 @@ public class Add extends Fragment {
     private Dialog dialog;
     Uri imageUri;
     String profileImageUrl;
+    private int cursorLastPosition = 0;
     private boolean permissionsChecked = false;
+    private boolean isLoading = false;
     private DocumentReference documentReference;
     public Add() {
         // Required empty public constructor
@@ -109,6 +112,21 @@ public class Add extends Fragment {
         adapter = new GalleryAdapter(list);
 
         recyclerView.setAdapter(adapter);
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                // Kiểm tra nếu RecyclerView có thể cuộn thêm
+                if (!recyclerView.canScrollVertically(1) && !isLoading) { // 1: kiểm tra cuộn xuống
+                    isLoading = true; // Đánh dấu là đang tải
+
+                    // Tải thêm ảnh
+                    loadImagesFromMediaStore(list.size(), 20);
+                }
+            }
+        });
 
         clickListeners();
 
@@ -238,7 +256,7 @@ public class Add extends Fragment {
                                 @Override
                                 public void onPermissionsChecked(MultiplePermissionsReport report) {
                                     if (list.isEmpty()) {
-                                        loadImagesFromMediaStore();
+                                        loadImagesFromMediaStore(0, 20);
                                     }
                                     permissionsChecked = true;
                                 }
@@ -270,7 +288,7 @@ public class Add extends Fragment {
 
         });
 
-    private void loadImagesFromMediaStore() {
+    private void loadImagesFromMediaStore(final int offset, final int limit) {
         // Truy vấn MediaStore để lấy ảnh
         ContentResolver contentResolver = requireContext().getContentResolver();
         Uri collection;
@@ -293,6 +311,7 @@ public class Add extends Fragment {
                 MediaStore.Images.Media.MIME_TYPE + "=?) AND " +
                 MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
         String[] selectionArgs = new String[]{"image/jpeg", "image/png"};//, "%AndroidNhat2%"};
+        String limitQuery = "LIMIT " + limit + " OFFSET " + offset;
 
         try (Cursor cursor = contentResolver.query(
                 collection,
@@ -301,19 +320,33 @@ public class Add extends Fragment {
 //                selectionArgs,
                 null,
                 null,
-                null)) {
-            if (cursor != null) {
-                int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+                MediaStore.Images.Media.DATE_ADDED + " DESC")) {
 
-                while (cursor.moveToNext()) {
+            if (cursor != null) {
+
+                int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+                int count = 0;
+                cursor.moveToPosition(cursorLastPosition);
+
+                while (cursor.moveToNext() && count < limit) {
                     long id = cursor.getLong(idColumn);
                     Uri contentUri = ContentUris.withAppendedId(
                             MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
 
                     // Thêm ảnh vào danh sách và thông báo adapter
                     list.add(new GalleryImages(contentUri));
-                    adapter.notifyDataSetChanged();
+                    count ++;
                 }
+
+                cursorLastPosition = cursor.getPosition();
+
+                recyclerView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.notifyDataSetChanged();
+                        isLoading = false; // Reset flag khi tải xong
+                    }
+                });
             }
         }
     }
