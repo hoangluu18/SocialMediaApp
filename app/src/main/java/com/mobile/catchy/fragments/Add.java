@@ -292,15 +292,13 @@ public class Add extends Fragment {
         String selection = "(" + MediaStore.Images.Media.MIME_TYPE + "=? OR " +
                 MediaStore.Images.Media.MIME_TYPE + "=?) AND " +
                 MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
-        String[] selectionArgs = new String[]{"image/jpeg", "image/png"};//, "%AndroidNhat2%"};
+        String[] selectionArgs = new String[]{"image/jpeg", "image/png", "%AndroidNhat2%"};
 
         try (Cursor cursor = contentResolver.query(
                 collection,
                 projection,
-//                selection,
-//                selectionArgs,
-                null,
-                null,
+                selection,
+                selectionArgs,
                 null)) {
             if (cursor != null) {
                 int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
