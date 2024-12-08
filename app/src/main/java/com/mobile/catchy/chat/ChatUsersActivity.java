@@ -2,11 +2,16 @@ package com.mobile.catchy.chat;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -16,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -25,6 +31,7 @@ import com.mobile.catchy.R;
 import com.mobile.catchy.adapter.ChatUserAdapter;
 import com.mobile.catchy.model.ChatModel;
 import com.mobile.catchy.model.ChatUserModel;
+import com.mobile.catchy.model.Users;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,16 +42,22 @@ import java.util.Locale;
 public class ChatUsersActivity extends AppCompatActivity {
     ChatUserAdapter adapter;
     List<ChatUserModel> list;
+    List<String> uidList;
     FirebaseUser user;
+    EditText searchET;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_chat_user);
-
+        CollectionReference reference = FirebaseFirestore.getInstance().collection("Users");
+        uidList = new ArrayList<>();
         user = FirebaseAuth.getInstance().getCurrentUser();
         init();
         fetchUserData();
+        searchET = findViewById(R.id.searchET);
+        searchUser();
         clickListener();
     }
     void init() {
@@ -102,5 +115,61 @@ public class ChatUsersActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    void searchUser() {
+        CollectionReference reference = FirebaseFirestore.getInstance().collection("Users");
+        searchET.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String newText = s.toString();
+                if (!newText.isEmpty()) {
+                    String query = newText.trim().toLowerCase();
+                    reference.orderBy("search")
+                            .get()
+                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                if (uidList != null)
+                                    uidList.clear();
+                                for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
+                                    Users users = snapshot.toObject(Users.class);
+                                    if (users != null &&
+                                        users.getName().toLowerCase().contains(query) &&
+                                        !users.getUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                                        uidList.add(users.getUid());
+                                    }
+                                }
+                                boolean check = true;
+                                for(ChatUserModel user : list) {
+                                    check = true;
+                                    for (String uid : uidList) {
+                                        if (user.getUid().contains(uid)) {
+                                            check = false;
+                                            break;
+                                        }
+                                    }
+                                    if (check == true) {
+                                        list.remove(user);
+                                    }
+                                }
+                                adapter.notifyDataSetChanged();
+                            })
+                            .addOnFailureListener(e -> {
+                                // Xử lý khi có lỗi xảy ra
+                            });
+                } else {
+                    fetchUserData();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
     }
 }
