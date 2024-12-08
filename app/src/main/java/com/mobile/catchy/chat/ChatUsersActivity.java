@@ -36,6 +36,7 @@ import com.mobile.catchy.model.Users;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -43,9 +44,10 @@ import java.util.Locale;
 public class ChatUsersActivity extends AppCompatActivity {
     ChatUserAdapter adapter;
     List<ChatUserModel> list;
+    List<ChatUserModel> tmpList;
     List<String> uidList;
     FirebaseUser user;
-    EditText searchET;
+    SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,10 +56,11 @@ public class ChatUsersActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat_user);
         CollectionReference reference = FirebaseFirestore.getInstance().collection("Users");
         uidList = new ArrayList<>();
+        tmpList = new ArrayList<>();
         user = FirebaseAuth.getInstance().getCurrentUser();
         init();
         fetchUserData();
-        searchET = findViewById(R.id.searchET);
+        searchView = findViewById(R.id.searchView);
         searchUser();
         clickListener();
     }
@@ -84,6 +87,7 @@ public class ChatUsersActivity extends AppCompatActivity {
                     list.add(model);
                 }
             }
+            tmpList.addAll(list);
             if (list == null || list.isEmpty()) {
                 Log.d("ChatUserList", "List is empty or null");
                 return;
@@ -120,14 +124,14 @@ public class ChatUsersActivity extends AppCompatActivity {
 
     void searchUser() {
         CollectionReference reference = FirebaseFirestore.getInstance().collection("Users");
-        searchET.addTextChangedListener(new TextWatcher() {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            public boolean onQueryTextSubmit(String query) {
+                return false;
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String newText = s.toString();
+            public boolean onQueryTextChange(String newText) {
                 if (!newText.isEmpty()) {
                     String query = newText.trim().toLowerCase();
                     reference.orderBy("search")
@@ -138,12 +142,15 @@ public class ChatUsersActivity extends AppCompatActivity {
                                 for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
                                     Users users = snapshot.toObject(Users.class);
                                     if (users != null &&
-                                        users.getName().toLowerCase().contains(query) &&
-                                        !users.getUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                                            users.getName().toLowerCase().contains(query) &&
+                                            !users.getUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                                         uidList.add(users.getUid());
                                     }
                                 }
                                 boolean check = true;
+                                if (!list.isEmpty())
+                                    list.clear();
+                                list.addAll(tmpList);
                                 Iterator<ChatUserModel> iterator = list.iterator();
                                 while (iterator.hasNext()) {
                                     check = true;
@@ -166,11 +173,7 @@ public class ChatUsersActivity extends AppCompatActivity {
                 } else {
                     fetchUserData();
                 }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
+                return true;
             }
         });
 
