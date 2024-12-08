@@ -36,6 +36,7 @@ import com.mobile.catchy.model.Users;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -143,8 +144,10 @@ public class ChatUsersActivity extends AppCompatActivity {
                                     }
                                 }
                                 boolean check = true;
-                                for(ChatUserModel user : list) {
+                                Iterator<ChatUserModel> iterator = list.iterator();
+                                while (iterator.hasNext()) {
                                     check = true;
+                                    ChatUserModel user = iterator.next();
                                     for (String uid : uidList) {
                                         if (user.getUid().contains(uid)) {
                                             check = false;
@@ -152,7 +155,7 @@ public class ChatUsersActivity extends AppCompatActivity {
                                         }
                                     }
                                     if (check == true) {
-                                        list.remove(user);
+                                        iterator.remove();
                                     }
                                 }
                                 adapter.notifyDataSetChanged();
