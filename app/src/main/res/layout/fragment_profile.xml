@@ -26,7 +26,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:text="username"
+                android:text="@string/Name"
                 android:textColor="@android:color/black"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -36,7 +36,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:layout_margin="12dp"
                 android:background="@drawable/ic_menu"
@@ -47,7 +46,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="false"
-                android:layout_alignParentRight="false"
                 android:layout_centerVertical="true"
                 android:layout_margin="12dp"
                 android:background="@drawable/baseline_logout_24"
@@ -82,7 +80,6 @@
                 android:layout_width="34dp"
                 android:layout_height="34dp"
                 android:layout_alignEnd="@id/profileImage"
-                android:layout_alignRight="@id/profileImage"
                 android:layout_alignBottom="@id/profileImage"
                 android:background="@drawable/ic_circle"
                 android:elevation="3dp"
@@ -104,7 +101,7 @@
                 android:layout_height="wrap_content"
                 android:maxLines="1"
                 android:padding="4dp"
-                android:text="Username"
+                android:text="@string/username"
                 android:textColor="@android:color/black"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -115,7 +112,7 @@
                 android:layout_height="wrap_content"
                 android:maxLines="3"
                 android:padding="4dp"
-                android:text="Love to travel around the world"
+                android:text="@string/love_to_travel_around_the_world"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />
 

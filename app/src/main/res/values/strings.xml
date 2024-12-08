@@ -50,4 +50,10 @@
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
     <string name="follower_image" />
+    <string name="comment">TODO</string>
+    <string name="share">share</string>
+    <string name="view_all_comments">View all comments</string>
+    <string name="username">Username</string>
+    <string name="love_to_travel_around_the_world">Love to travel around the world</string>
+    <string name="Name">username</string>
 </resources>

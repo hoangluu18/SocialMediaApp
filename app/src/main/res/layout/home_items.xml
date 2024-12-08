@@ -66,14 +66,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:background="@drawable/ic_comment" />
+            android:background="@drawable/ic_comment"
+            android:contentDescription="@string/comment" />
 
         <ImageButton
             android:id="@+id/shareBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:background="@drawable/ic_share" />
+            android:background="@drawable/ic_share"
+            android:contentDescription="@string/share" />
 
 
     </LinearLayout>
@@ -101,7 +103,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/likeCountTv"
-        android:text="View all comments"
+        android:text="@string/view_all_comments"
         android:padding="8dp"
         android:visibility="gone"
        />
