@@ -82,9 +82,7 @@ public class Add extends Fragment {
     private Dialog dialog;
     Uri imageUri;
     String profileImageUrl;
-    private int cursorLastPosition = 0;
     private boolean permissionsChecked = false;
-    private boolean isLoading = false;
     private DocumentReference documentReference;
     public Add() {
         // Required empty public constructor
@@ -112,21 +110,6 @@ public class Add extends Fragment {
         adapter = new GalleryAdapter(list);
 
         recyclerView.setAdapter(adapter);
-
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                // Kiểm tra nếu RecyclerView có thể cuộn thêm
-                if (!recyclerView.canScrollVertically(1) && !isLoading) { // 1: kiểm tra cuộn xuống
-                    isLoading = true; // Đánh dấu là đang tải
-
-                    // Tải thêm ảnh
-                    loadImagesFromMediaStore(list.size(), 20);
-                }
-            }
-        });
 
         clickListeners();
 
@@ -256,7 +239,7 @@ public class Add extends Fragment {
                                 @Override
                                 public void onPermissionsChecked(MultiplePermissionsReport report) {
                                     if (list.isEmpty()) {
-                                        loadImagesFromMediaStore(0, 20);
+                                        loadImagesFromMediaStore();
                                     }
                                     permissionsChecked = true;
                                 }
@@ -288,7 +271,7 @@ public class Add extends Fragment {
 
         });
 
-    private void loadImagesFromMediaStore(final int offset, final int limit) {
+    private void loadImagesFromMediaStore() {
         // Truy vấn MediaStore để lấy ảnh
         ContentResolver contentResolver = requireContext().getContentResolver();
         Uri collection;
@@ -310,43 +293,28 @@ public class Add extends Fragment {
         String selection = "(" + MediaStore.Images.Media.MIME_TYPE + "=? OR " +
                 MediaStore.Images.Media.MIME_TYPE + "=?) AND " +
                 MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
-        String[] selectionArgs = new String[]{"image/jpeg", "image/png"};//, "%AndroidNhat2%"};
-        String limitQuery = "LIMIT " + limit + " OFFSET " + offset;
+        String[] selectionArgs = new String[]{"image/jpeg", "image/png", "%AndroidNhat2%"};
 
         try (Cursor cursor = contentResolver.query(
                 collection,
                 projection,
-//                selection,
-//                selectionArgs,
-                null,
-                null,
-                MediaStore.Images.Media.DATE_ADDED + " DESC")) {
+                selection,
+                selectionArgs,
+                null)) {
 
             if (cursor != null) {
 
                 int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
-                int count = 0;
-                cursor.moveToPosition(cursorLastPosition);
 
-                while (cursor.moveToNext() && count < limit) {
+                while (cursor.moveToNext()) {
                     long id = cursor.getLong(idColumn);
                     Uri contentUri = ContentUris.withAppendedId(
                             MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
 
                     // Thêm ảnh vào danh sách và thông báo adapter
                     list.add(new GalleryImages(contentUri));
-                    count ++;
+                    adapter.notifyDataSetChanged();
                 }
-
-                cursorLastPosition = cursor.getPosition();
-
-                recyclerView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter.notifyDataSetChanged();
-                        isLoading = false; // Reset flag khi tải xong
-                    }
-                });
             }
         }
     }
