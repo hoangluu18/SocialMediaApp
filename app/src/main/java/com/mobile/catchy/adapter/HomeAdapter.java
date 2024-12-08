@@ -230,6 +230,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
                 if (isChecked) {
                     // Nếu chưa có like của user hiện tại
                     if (!likes.contains(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+
                         count += 1;
                     }
                 } else {
