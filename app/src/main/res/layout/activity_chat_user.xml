@@ -29,6 +29,7 @@
         android:drawableTint="@color/colorGreyDark"
         android:hint="Search..."
         android:padding="12dp"
+        android:maxLines="1"
         tools:ignore="UnusedAttribute" />
 
     <androidx.recyclerview.widget.RecyclerView
