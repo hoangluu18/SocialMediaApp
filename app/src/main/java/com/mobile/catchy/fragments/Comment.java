@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.mobile.catchy.R;
 import com.mobile.catchy.adapter.CommentAdapter;
@@ -76,11 +78,11 @@ public class Comment extends Fragment {
 
         sendBtn.setOnClickListener(v -> {
             String comment = commentEt.getText().toString();
-
             if (comment.isEmpty()) {
                 Toast.makeText(getContext(), "Enter comment", Toast.LENGTH_SHORT).show();
                 return;
             }
+            createNoti(comment);
 
             String commentID = reference.document().getId();
 
@@ -90,6 +92,7 @@ public class Comment extends Fragment {
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
+
                             DocumentSnapshot document = task.getResult();
                             if (document.exists()) {
                                 String profileImageUrl = document.getString("profileImage");
@@ -172,6 +175,19 @@ public class Comment extends Fragment {
 
         id = getArguments().getString("id");
         uid = getArguments().getString("uid");
+
+    }
+
+    void createNoti(String cmt) {
+        CollectionReference reference = FirebaseFirestore.getInstance().collection("Notifications");
+        String id = reference.document().getId();
+        Map<String, Object> map = new HashMap<>();
+        map.put("time", FieldValue.serverTimestamp());
+        map.put("notification", user.getDisplayName() + " commented your post: " + cmt +".");
+        map.put("id", id);
+        map.put("uid", uid);
+        map.put("followerId", user.getUid());
+        reference.document(id).set(map);
 
     }
 

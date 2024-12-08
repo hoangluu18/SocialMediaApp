@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,11 +23,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.mobile.catchy.R;
 import com.mobile.catchy.ReplacerActivity;
 import com.mobile.catchy.model.HomeModel;
+import com.mobile.catchy.model.Users;
 
 import java.util.HashMap;
 import java.util.List;
@@ -227,12 +231,16 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
            // likeCheckBox.setOnCheckedChangeListener((compoundButton, isChecked) -> onPressed.onLiked(position, id,uid,likes, isChecked));
             likeCheckBox.setOnClickListener(view -> {
                 boolean isChecked = likeCheckBox.isChecked();
-
+                String currentid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                String currentname  = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+                createNoti(uid, currentid, currentname);
+               // dday laf user cuar post
                 // Cập nhật UI
                 int count = likes.size();
                 if (isChecked) {
                     // Nếu chưa có like của user hiện tại
                     if (!likes.contains(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+
                         count += 1;
                     }
                 } else {
@@ -286,6 +294,17 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
 
     }
 
+    void createNoti(String uid, String currentid, String name) {
+        CollectionReference reference = FirebaseFirestore.getInstance().collection("Notifications");
+        String id = reference.document().getId();
+        Map<String, Object> map = new HashMap<>();
+        map.put("time", FieldValue.serverTimestamp());
+        map.put("notification", name + " liked your post.");
+        map.put("id", id);
+        map.put("uid", uid);
+        map.put("followerId", currentid);
+        reference.document(id).set(map);
+    }
 
 
 }
