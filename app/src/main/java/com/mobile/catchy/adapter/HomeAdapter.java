@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,7 +74,9 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
 
     private void registerReceiver() {
         if (!isReceiverRegistered && context != null) {
-            context.registerReceiver(commentUpdateReceiver, new IntentFilter("UPDATE_COMMENT_COUNT"));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.registerReceiver(commentUpdateReceiver, new IntentFilter("UPDATE_COMMENT_COUNT"), Context.RECEIVER_NOT_EXPORTED);
+            }
             isReceiverRegistered = true;
         }
     }

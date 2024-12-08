@@ -21,6 +21,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
@@ -203,7 +204,6 @@ public class Add extends Fragment {
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         documentReference = FirebaseFirestore.getInstance().collection("Users").document(user.getUid());
-
         documentReference.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 profileImageUrl = task.getResult().getString("profileImage");
@@ -301,7 +301,9 @@ public class Add extends Fragment {
                 selection,
                 selectionArgs,
                 null)) {
+
             if (cursor != null) {
+
                 int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
 
                 while (cursor.moveToNext()) {
