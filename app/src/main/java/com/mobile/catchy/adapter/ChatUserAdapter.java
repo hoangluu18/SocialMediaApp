@@ -85,7 +85,10 @@ public class ChatUserAdapter extends RecyclerView.Adapter<ChatUserAdapter.CharUs
 //
 //                        Log.d("ChatList", "NAME: " + snapshot.getString("name"));
 //                        Log.d("ChatList", "ImageURL: " + snapshot.getString("profileImage"));
-                        Glide.with(context.getApplicationContext()).load(snapshot.getString("profileImage")).into(holder.imageView);
+                        Glide.with(context.getApplicationContext())
+                                .load(snapshot.getString("profileImage"))
+                                .placeholder(R.drawable.ic_person)
+                                .into(holder.imageView);
                         holder.name.setText(snapshot.getString("name"));
                     } else {
                         Toast.makeText(context, "Error: " +  task.getException().getMessage(), Toast.LENGTH_SHORT);
