@@ -1,27 +1,70 @@
--   `app/`: Thư mục chính chứa các subdirectories của dự án.
-    -   `build.gradle`: File cấu hình Gradle cho module `app`.
-    -   `src/`: Thư mục chứa mã nguồn của ứng dụng.
-        -   `main/`: Thư mục chứa mã nguồn chính của dự án.
-            -   `AndroidManifest.xml`: File manifest của Android định nghĩa các thành phần của ứng dụng.
-            -   `java/`: Thư mục chứa mã nguồn Java của ứng dụng.
-                -   `com/`: Thư mục gốc của các packages.
-                    -   `mobile/`: Package đại diện cho ứng dụng di động.
-                        -   `catchy/`: Package chính của ứng dụng.
-                            -   `SplashActivity.java`: Class đại diện cho màn hình splash của ứng dụng.
-                            -   `FragmentReplacerActivity.java`: Class để thay thế các fragment trong ứng dụng.
-                            -   `fragments/`: Thư mục chứa các fragment của ứng dụng.
-                                -   `LoginFragment.java`: Class đại diện cho giao diện đăng nhập của ứng dụng.
-            -   `res/`: Thư mục chứa các tài nguyên của ứng dụng.
-                -   `layout/`: Thư mục chứa các file bố cục (layout) của giao diện.
-                    -   `activity_splash.xml`: Bố cục cho màn hình splash.
-                    -   `activity_fragment_replacer.xml`: Bố cục cho màn hình thay thế fragment.
-                    -   `fragment_login.xml`: Bố cục cho màn hình đăng nhập.
-                -   `values/`: Thư mục chứa các giá trị dùng chung như chuỗi (strings), màu sắc (colors), kiểu (styles).
-                    -   `strings.xml`: File chứa các chuỗi ký tự được sử dụng trong ứng dụng.
-    -   `test/`: Thư mục chứa các test unit của ứng dụng.
-        -   `java/`: Thư mục chứa các lớp test Java.
-            -   `com/`: Thư mục gốc của các packages test.
-                -   `mobile/`: Package chứa các test của ứng dụng.
-                    -   `catchy/`: Package chính của test.
--   `build.gradle`: File cấu hình Gradle cho toàn bộ dự án.
--   `settings.gradle`: File cấu hình cài đặt các modules của dự án.
+
+# Social Media Android App
+
+  
+
+A social media Android application that allows users to share images, follow other users, and interact through posts and comments.
+
+  
+
+## Features
+
+  
+
+- User authentication with Firebase
+
+- Image posting with description
+
+- Image cropping functionality
+
+- Profile management
+
+- Follow/Unfollow system
+
+- Post interactions (likes and comments)
+
+- Real-time updates using Firebase
+
+- Chat functionality
+
+  
+
+## Technical Stack
+
+  
+
+- Language: Java
+
+- Platform: Android
+
+- Backend: Firebase
+
+- Firebase Authentication
+
+- Cloud Firestore
+
+- Firebase Storage
+
+- Image Processing: Android Image Cropper
+
+  
+
+## Setup
+
+  
+
+1. Clone the repository
+
+2. Open the project in Android Studio
+
+3. Configure your Firebase project:
+
+- Add your `google-services.json` to the `app/` directory
+
+- Enable Authentication, Firestore, and Storage in Firebase Console
+
+4. Build the project using Gradle:
+
+```sh
+
+./gradlew  build
