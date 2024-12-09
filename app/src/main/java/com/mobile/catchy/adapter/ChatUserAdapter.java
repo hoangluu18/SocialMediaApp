@@ -51,7 +51,6 @@ public class ChatUserAdapter extends RecyclerView.Adapter<ChatUserAdapter.CharUs
 
         fetchImageUrl(list.get(position).getUid(), holder);
 
-        //holder.time.setText(list.get(position).getTime().);
         holder.time.setText(calculateTime(list.get(position).getTime()));
         holder.lastMessage.setText(list.get(position).getLastMessage());
 
@@ -60,7 +59,6 @@ public class ChatUserAdapter extends RecyclerView.Adapter<ChatUserAdapter.CharUs
             startChat.clicked(position, list.get(position).getUid(), list.get(position).getId());
 
         });
-//        Glide.with(context.getApplicationContext().load())
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -81,11 +79,10 @@ public class ChatUserAdapter extends RecyclerView.Adapter<ChatUserAdapter.CharUs
                 .get().addOnCompleteListener(task -> {
                     if(task.isSuccessful()) {
                         DocumentSnapshot snapshot = task.getResult();
-//                        Log.d("ChatList", "oppositeUID: " + oppositeUID);
-//
-//                        Log.d("ChatList", "NAME: " + snapshot.getString("name"));
-//                        Log.d("ChatList", "ImageURL: " + snapshot.getString("profileImage"));
-                        Glide.with(context.getApplicationContext()).load(snapshot.getString("profileImage")).into(holder.imageView);
+                        Glide.with(context.getApplicationContext())
+                                .load(snapshot.getString("profileImage"))
+                                .placeholder(R.drawable.ic_person)
+                                .into(holder.imageView);
                         holder.name.setText(snapshot.getString("name"));
                     } else {
                         Toast.makeText(context, "Error: " +  task.getException().getMessage(), Toast.LENGTH_SHORT);

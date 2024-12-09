@@ -329,54 +329,6 @@ public class Profile extends Fragment {
 
     void StartChat(StylishAlertDialog  alertDialog) {
 
-//        CollectionReference reference = FirebaseFirestore.getInstance().collection("Messages");
-//
-//        List<String> list = new ArrayList<>();
-//        list.add(0, user.getUid());
-//        list.add(1, userUID);
-//        String pushID =  reference.document().getId();
-//
-//
-//        Map<String,  Object> map = new HashMap<>();
-//        map.put("id", pushID);
-//        map.put("lastMessage", "HI");
-//        map.put("time", FieldValue.serverTimestamp());
-//        map.put("uid", list);
-//
-//        reference.document(pushID).update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//                if(task.isSuccessful()) {
-//
-//                } else {
-//                    reference.document(pushID).set(map);
-//                }
-//            }
-//        });
-//
-//
-//        CollectionReference messageRef = FirebaseFirestore.getInstance().collection("Messages").document(pushID).collection("Messages");
-//        String messageID = messageRef.document().getId();
-//
-//
-//        Map<String, Object> messageMap = new HashMap<>();
-//        messageMap.put("id", messageID);
-//        messageMap.put("message", "Hi");
-//        messageMap.put("senderID", user.getUid());
-//        messageMap.put("time", FieldValue.serverTimestamp());
-//
-//        messageRef.document(messageID).set(messageMap);
-//
-//        new Handler().postDelayed(() -> {
-//
-//            alertDialog.dismissWithAnimation();
-//
-//            Intent intent = new Intent(getActivity(), ChatActivity.class);
-//            intent.putExtra("uid", userUID);
-//            intent.putExtra("id", pushID);
-//            startActivity(intent);
-//
-//        }, 3000);
         CollectionReference reference = FirebaseFirestore.getInstance().collection("Messages");
 
         List<String> list = new ArrayList<>();
@@ -429,33 +381,6 @@ public class Profile extends Fragment {
     }
 
     private void queryChat() {
-
-//        StylishAlertDialog alertDialog = new StylishAlertDialog(getContext(), StylishAlertDialog.PROGRESS);
-//        alertDialog.setTitleText("Starting chat ...");
-//        alertDialog.setCancelable(false);
-//        alertDialog.show();
-//
-//        CollectionReference reference = FirebaseFirestore.getInstance().collection("Messages");
-//        reference.whereArrayContains("uid", userUID).get().addOnCompleteListener(task -> {
-//            if(task.isSuccessful()) {
-//                QuerySnapshot snapshot = task.getResult();
-//                if(snapshot.isEmpty()) {
-//                    StartChat(alertDialog);
-//                }
-//                else {
-//                    alertDialog.dismissWithAnimation();
-//                    for(DocumentSnapshot snapshotChat : snapshot) {
-//                        Intent intent = new Intent(getActivity(), ChatActivity.class);
-//                        intent.putExtra("uid", userUID);
-//                        intent.putExtra("id", snapshotChat.getId());
-//                        startActivity(intent);
-//                    }
-//                }
-//            } else {
-//                alertDialog.dismissWithAnimation();
-//            }
-//        });
-
         assert getContext() != null;
         StylishAlertDialog alertDialog = new StylishAlertDialog(getContext(), StylishAlertDialog.PROGRESS);
         alertDialog.setTitleText("Starting Chat...");
@@ -504,33 +429,6 @@ public class Profile extends Fragment {
                     }
 
                 });
-//        reference.whereArrayContains("uid", userUID)
-//                .get().addOnCompleteListener(task -> {
-//
-//                    if (task.isSuccessful()) {
-//
-//                        QuerySnapshot snapshot = task.getResult();
-//
-//                        if (snapshot.isEmpty()) {
-//                            StartChat(alertDialog);
-//                        } else {
-//                            //get chatId and pass
-//                            alertDialog.dismissWithAnimation();
-//                            for (DocumentSnapshot snapshotChat : snapshot) {
-//
-//                                Intent intent = new Intent(getActivity(), ChatActivity.class);
-//                                intent.putExtra("uid", userUID);
-//                                intent.putExtra("id", snapshotChat.getId()); //return doc id
-//                                startActivity(intent);
-//                            }
-//
-//
-//                        }
-//
-//                    } else
-//                        alertDialog.dismissWithAnimation();
-//
-//                });
     }
 
     private void loadBasicData() {
@@ -600,56 +498,6 @@ public class Profile extends Fragment {
 
     }
 
-//    private void storeProfileImage(Bitmap bitmap, String url){
-//        SharedPreferences preferences = getActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-//        boolean isStored = preferences.getBoolean(PREF_STORED, false);
-//        String urlString = preferences.getString(PREF_URL, "");
-//
-//        SharedPreferences.Editor editor = preferences.edit();
-//
-//        if (isStored && urlString.equals(url))
-//            return;
-//
-//        if (IS_SEARCHED_USER)
-//            return;
-//
-//        ContextWrapper contextWrapper = new ContextWrapper(getActivity().getApplicationContext());
-//
-//        File directory = contextWrapper.getDir("image_data", Context.MODE_PRIVATE);
-//
-//        if (!directory.exists()) {
-//            boolean isMade = directory.mkdirs();
-//            Log.d("Directory", String.valueOf(isMade));
-//        }
-//
-//
-//        File path = new File(directory, "profile.png");
-//
-//        FileOutputStream outputStream = null;
-//
-//        try {
-//            outputStream = new FileOutputStream(path);
-//
-//            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-//
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } finally {
-//
-//            try {
-//                assert outputStream != null;
-//                outputStream.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//        }
-//
-//        editor.putBoolean(PREF_STORED, true);
-//        editor.putString(PREF_URL, url);
-//        editor.putString(PREF_DIRECTORY, directory.getAbsolutePath());
-//        editor.apply();
-//    }
 
     private void init(View view){
         Toolbar toolbar = view.findViewById(R.id.toolbar);

@@ -33,14 +33,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements Search.OnDataPass {
-
     public static String USER_ID;
     public static boolean IS_SEARCHED_USER = false;
     ViewPagerAdapter pagerAdapter;
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
-
+    //bien check chat activity
+    public static boolean ISONCHATACTIVITY = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,14 +64,6 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_add));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_heart));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.baseline_person_24));
-// KHONG SU DUNG NUA
-//        SharedPreferences preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-//        String directory = preferences.getString(PREF_DIRECTORY, "");
-//
-//        Bitmap bitmap = loadProfileImage(directory);
-//        Drawable drawable = new BitmapDrawable(getResources(), bitmap);
-//
-//        tabLayout.addTab(tabLayout.newTab().setIcon(drawable));
 
         tabLayout.setTabGravity(TabLayout.GRAVITY_CENTER);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
@@ -168,6 +160,7 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
                     .document(currentUser.getUid())
                     .update("status", "Online");
         }
+        ISONCHATACTIVITY = false;
     }
 
     @Override
@@ -182,7 +175,18 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
                     .update("status", "Offline")
                     .addOnFailureListener(e ->
                             Log.e("MainActivity", "Error updating status: " + e.getMessage()));
+            if(ISONCHATACTIVITY){
+                // Cập nhật trạng thái offline
+                FirebaseFirestore.getInstance()
+                        .collection("Users")
+                        .document(currentUser.getUid())
+                        .update("status", "Online")
+                        .addOnFailureListener(e ->
+                                Log.e("MainActivity", "Error updating status: " + e.getMessage()));
+            }
         }
+
+
     }
 
 
@@ -225,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             Map<String, Object> map = new HashMap<>();
-            map.put("online", status);
+            map.put("online ", status);
             FirebaseFirestore.getInstance()
                     .collection("Users")
                     .document(currentUser.getUid())

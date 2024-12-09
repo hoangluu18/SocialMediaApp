@@ -102,46 +102,6 @@ public class Home extends Fragment {
                 reference.update(map);
 
             }
-//            @Override
-//            public void setCommentCount(final TextView textView) {
-//
-//                commentCount.observe((LifecycleOwner) activity, integer -> {
-//
-//                    assert commentCount.getValue() != null;
-//
-//                    if (commentCount.getValue() == 0) {
-//                        textView.setVisibility(View.GONE);
-//                    } else
-//                        textView.setVisibility(View.VISIBLE);
-//
-//                    StringBuilder builder = new StringBuilder();
-//                    builder.append("See all")
-//                            .append(commentCount.getValue())
-//                            .append(" comments");
-//
-//                    textView.setText(builder);
-////                    textView.setText("See all " + commentCount.getValue() + " comments");
-//
-//                });
-//
-//            }
-
-
-
-//            @Override
-//            public void setCommentCount(TextView textView) {
-//
-////                commentCount.observe((LifecycleOwner) getContext(), integer -> {
-////                    if( integer == 0){
-////                        textView.setVisibility(View.GONE);
-////                    }else{
-////                        textView.setVisibility(View.VISIBLE);
-////                        textView.setText("See all + " + integer + " comments");
-////                    }
-////
-////                });
-//
-//            }
 
         });
 

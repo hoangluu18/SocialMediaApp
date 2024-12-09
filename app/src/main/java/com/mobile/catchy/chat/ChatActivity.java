@@ -82,8 +82,6 @@ public class ChatActivity extends AppCompatActivity {
 
             reference.document(chatID).update(map);
 
-//            CollectionReference messageRef = FirebaseFirestore.getInstance().collection("Messages").document(pushID).collection("Messages");
-
             String messageID = reference.document(chatID).collection("Messages").document().getId();
 
 
@@ -122,16 +120,8 @@ public class ChatActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
 
-
-//        for (ChatModel chat : list) {
-//            Log.d("ChatList", "ID: " + chat.getId());
-//            Log.d("ChatList", "Message: " + chat.getMessage());
-//            Log.d("ChatList", "SenderID: " + chat.getSenderID());
-//            Log.d("ChatList", "Time: " + chat.getTime());
-//        }
-//        adapter = new ChatAdapter(this, list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        //recyclerView.setAdapter(adapter);
+
         Log.d("ChatList", "Initialization complete");
     }
 

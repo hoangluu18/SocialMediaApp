@@ -180,7 +180,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
 
     public interface OnPressed {
         void onLiked(int position, String id,String uid, List<String> likeList, boolean isChecked);
-
     }
 
      class HomeHolder extends RecyclerView.ViewHolder {
@@ -212,7 +211,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
 
             commentTV = itemView.findViewById(R.id.commentTV);
 
-            //onPressed.setCommentCount(commentTV);
         }
 
         public void clickListener(final int position, final String id, String name, final String uid, List<String> likes, final String imageUrl) {
@@ -230,7 +228,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
                 String currentid = FirebaseAuth.getInstance().getCurrentUser().getUid();
                 String currentname  = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
                 createNoti(uid, currentid, currentname);
-               // dday laf user cuar post
                 // Cập nhật UI
                 int count = likes.size();
                 if (isChecked) {
