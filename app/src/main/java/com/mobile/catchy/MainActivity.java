@@ -40,7 +40,8 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
-
+    //bien check chat activity
+    public static boolean ISONCHATACTIVITY = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -168,11 +169,13 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
                     .document(currentUser.getUid())
                     .update("status", "Online");
         }
+        ISONCHATACTIVITY = false;
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        Toast.makeText(getApplication(),"on stop",Toast.LENGTH_SHORT).show();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             // Cập nhật trạng thái offline
@@ -182,7 +185,18 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
                     .update("status", "Offline")
                     .addOnFailureListener(e ->
                             Log.e("MainActivity", "Error updating status: " + e.getMessage()));
+            if(ISONCHATACTIVITY){
+                // Cập nhật trạng thái offline
+                FirebaseFirestore.getInstance()
+                        .collection("Users")
+                        .document(currentUser.getUid())
+                        .update("status", "Online")
+                        .addOnFailureListener(e ->
+                                Log.e("MainActivity", "Error updating status: " + e.getMessage()));
+            }
         }
+
+
     }
 
 
@@ -225,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             Map<String, Object> map = new HashMap<>();
-            map.put("online", status);
+            map.put("online ", status);
             FirebaseFirestore.getInstance()
                     .collection("Users")
                     .document(currentUser.getUid())

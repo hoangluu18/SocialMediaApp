@@ -1,5 +1,7 @@
 package com.mobile.catchy.chat;
 
+import static com.mobile.catchy.MainActivity.ISONCHATACTIVITY;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -60,7 +62,11 @@ public class ChatUsersActivity extends AppCompatActivity {
         searchET = findViewById(R.id.searchET);
         searchUser();
         clickListener();
+
     }
+
+
+
     void init() {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         list = new ArrayList<>();
@@ -68,6 +74,30 @@ public class ChatUsersActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Toast.makeText(getApplication(),"on start",Toast.LENGTH_SHORT).show();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            // Cập nhật trạng thái online
+            FirebaseFirestore.getInstance()
+                    .collection("Users")
+                    .document(currentUser.getUid())
+                    .update("status", "Online");
+            FirebaseFirestore.getInstance()
+                    .collection("Users")
+                    .document(currentUser.getUid())
+                    .update("online", true);
+            ISONCHATACTIVITY = true;
+        }
+    }
+    @Override
+    public void onStop(){
+        super.onStop();
+    }
+
     void fetchUserData() {
         CollectionReference reference = FirebaseFirestore.getInstance().collection("Messages");
         reference.whereArrayContains("uid", user.getUid()).addSnapshotListener((value, error) -> {
