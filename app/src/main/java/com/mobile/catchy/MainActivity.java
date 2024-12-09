@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements Search.OnDataPass {
-
     public static String USER_ID;
     public static boolean IS_SEARCHED_USER = false;
     ViewPagerAdapter pagerAdapter;
@@ -65,14 +64,6 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_add));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.ic_heart));
         tabLayout.addTab(tabLayout.newTab().setIcon(R.drawable.baseline_person_24));
-// KHONG SU DUNG NUA
-//        SharedPreferences preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-//        String directory = preferences.getString(PREF_DIRECTORY, "");
-//
-//        Bitmap bitmap = loadProfileImage(directory);
-//        Drawable drawable = new BitmapDrawable(getResources(), bitmap);
-//
-//        tabLayout.addTab(tabLayout.newTab().setIcon(drawable));
 
         tabLayout.setTabGravity(TabLayout.GRAVITY_CENTER);
         tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
@@ -175,7 +166,6 @@ public class MainActivity extends AppCompatActivity implements Search.OnDataPass
     @Override
     public void onStop() {
         super.onStop();
-        Toast.makeText(getApplication(),"on stop",Toast.LENGTH_SHORT).show();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             // Cập nhật trạng thái offline

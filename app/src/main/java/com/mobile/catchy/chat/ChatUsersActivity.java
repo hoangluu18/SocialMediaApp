@@ -82,7 +82,6 @@ public class ChatUsersActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        Toast.makeText(getApplication(),"on start",Toast.LENGTH_SHORT).show();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             // Cập nhật trạng thái online

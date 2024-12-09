@@ -180,10 +180,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
 
     public interface OnPressed {
         void onLiked(int position, String id,String uid, List<String> likeList, boolean isChecked);
-
-        //void setCommentCount(TextView textView);
-
-//        void setCommentCount(TextView textView);
     }
 
      class HomeHolder extends RecyclerView.ViewHolder {
@@ -215,7 +211,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
 
             commentTV = itemView.findViewById(R.id.commentTV);
 
-            //onPressed.setCommentCount(commentTV);
         }
 
         public void clickListener(final int position, final String id, String name, final String uid, List<String> likes, final String imageUrl) {
@@ -228,13 +223,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
                 context.startActivity(intent);
             });
 
-           // likeCheckBox.setOnCheckedChangeListener((compoundButton, isChecked) -> onPressed.onLiked(position, id,uid,likes, isChecked));
             likeCheckBox.setOnClickListener(view -> {
                 boolean isChecked = likeCheckBox.isChecked();
                 String currentid = FirebaseAuth.getInstance().getCurrentUser().getUid();
                 String currentname  = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
                 createNoti(uid, currentid, currentname);
-               // dday laf user cuar post
                 // Cập nhật UI
                 int count = likes.size();
                 if (isChecked) {
