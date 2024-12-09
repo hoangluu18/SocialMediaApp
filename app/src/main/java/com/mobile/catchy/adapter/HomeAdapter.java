@@ -181,9 +181,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
     public interface OnPressed {
         void onLiked(int position, String id,String uid, List<String> likeList, boolean isChecked);
 
-        //void setCommentCount(TextView textView);
-
-//        void setCommentCount(TextView textView);
     }
 
      class HomeHolder extends RecyclerView.ViewHolder {
@@ -228,7 +225,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.HomeHolder> {
                 context.startActivity(intent);
             });
 
-           // likeCheckBox.setOnCheckedChangeListener((compoundButton, isChecked) -> onPressed.onLiked(position, id,uid,likes, isChecked));
             likeCheckBox.setOnClickListener(view -> {
                 boolean isChecked = likeCheckBox.isChecked();
                 String currentid = FirebaseAuth.getInstance().getCurrentUser().getUid();
